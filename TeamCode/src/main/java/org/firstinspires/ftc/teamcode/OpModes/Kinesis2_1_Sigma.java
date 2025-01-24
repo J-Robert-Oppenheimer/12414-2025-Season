@@ -590,6 +590,43 @@ public class Kinesis2_1_Sigma extends OpMode {
                 white = 0;
             }
         }
+
+
+        //DEBUG CONTROL
+        if(gamepad2.touchpad){
+            if(gamepad2.left_bumper){//HSlide in
+                HslidePos+= 0.02;
+            }
+            if(gamepad2.right_bumper){//HSlide out
+                HslidePos-= 0.02;
+            }
+
+
+            if(gamepad2.right_stick_y > 0 && armPositionL > 0 && armPositionL < 0.77){
+            armPositionL -= gamepad2.right_stick_y * 0.01;
+            jointPos(armPositionL,armPositionH);}
+
+            if(gamepad2.left_stick_y > 0 && armPositionH > 0 && armPositionH < 1) {
+                armPositionH = gamepad2.left_stick_y * 0.01;
+                jointPos(armPositionL, armPositionH);}
+
+            if(gamepad2.dpad_down){
+                gHMap.wrist.setPosition(0.18);
+            }
+            if(gamepad2.dpad_up){
+                gHMap.wrist.setPosition(0);
+            }
+
+
+        }
+
+
+
+
+
+
+
+
         elapsedTime = currentTime - armStartTime;
 
         i++;

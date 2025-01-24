@@ -150,7 +150,7 @@ public class ExampleBucketAuto extends OpMode {
 
                 /* You could check for
                 - Follower State: "if(!follower.isBusy() {}"
-                - Time: "if(pathTimer.getElapsedTimeSeconds() > 1) {}"
+                - Time: "if(pathTimer.getElpsedTimeSeconds() > 1) {}"
                 - Robot Position: "if(follower.getPose().getX() > 36) {}"
                 */
 
