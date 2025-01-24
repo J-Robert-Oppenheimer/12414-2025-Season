@@ -70,7 +70,7 @@ public class Kinesis2_1_Sigma extends OpMode {
     int white;
     double dY;
     double low0, highF, lowF;
-    double speed = 7;
+    double speed = 1;
     double inverseSpeed = -1/speed;
     double E = Math.E;
     double intermJoint;
@@ -101,6 +101,14 @@ public class Kinesis2_1_Sigma extends OpMode {
     int gibbs = 0;
     boolean sampleReturn = false;
     double clawDist;
+    long slideStartTime;
+    long slideStartTime2;
+    long currentTime;
+    boolean HslideRetract;
+    int LastArmPos;
+    boolean vSlideLowering = false;
+    int lastSlidePos;
+    long vSlideStart;
 
     /**
      * This initializes the PoseUpdater, the mecanum drive motors, and the FTC Dashboard telemetry.
@@ -136,7 +144,7 @@ public class Kinesis2_1_Sigma extends OpMode {
         }
 
         for (DcMotorEx motor : motors) {
-            motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
 
         telemetryA = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
@@ -154,6 +162,7 @@ public class Kinesis2_1_Sigma extends OpMode {
      */
     @Override
     public void loop() {
+        currentTime = System.currentTimeMillis();
         poseUpdater.update();
         dashboardPoseTracker.update();
 
@@ -212,32 +221,51 @@ public class Kinesis2_1_Sigma extends OpMode {
             slidePos += 5;
         }
 
-        power = (Math.abs(slidePos) < 2 && Math.abs(gHMap.bone1.getCurrentPosition()) < 2)?0:1;
+
+//        power = (!vSlideLowering && )?0:1;
+        if(slidePos > lastSlidePos)vSlideLowering = true;
+        if(vSlideLowering)power = 0.1;
+        else if(Math.abs(slidePos) < 2 && Math.abs(gHMap.bone1.getCurrentPosition()) < 3)power = 0;
+        else power = 1;
+        if(!vSlideLowering)slidePos = lastSlidePos;
+        if(Math.abs(slidePos- gHMap.bone1.getCurrentPosition()) < 4)vSlideLowering =false;
+
         gHMap.bone1.setPower(power);
-        gHMap.bone2.setPower(power);
+//        gHMap.bone2.setPower(power);
         gHMap.bone3.setPower(power);
 
 
         gHMap.bone1.setTargetPosition(slidePos);
-        gHMap.bone2.setTargetPosition(slidePos);
+//        gHMap.bone2.setTargetPosition(slidePos);
         gHMap.bone3.setTargetPosition(slidePos);
 
+        //------------------- HORIZONTAL SLIDES --------------------------
         if (gamepad1.right_bumper && HslidePos < 1.0) {
-            if(first){HslidePos = 0.8; first = false;}
-            HslidePos += 0.005;
+            HslidePos = 0.95; currentTime = slideStartTime;HslideRetract = true;
+
+        }
+        if(first && currentTime > slideStartTime + 250){
+            gHMap.wrist.setPosition(0.18);
+            first = false;
         }
         if(gamepad1.left_bumper){
             HslidePos = 0;
             gHMap.wrist.setPosition(0.0);
-
+            currentTime = slideStartTime2;
         }
-        if (gamepad2.left_bumper && HslidePos > 0) HslidePos -= 0.005;
-        if(HslidePos < 0.005)first=true;
+        if(slideStartTime2 + 500 > currentTime && HslideRetract && HslidePos < 0.01){
+            gHMap.zero8.setPower(0);
+            HslideRetract =false;
+        }
+
+
+
+//        if (gamepad2.left_bumper && HslidePos > 0) HslidePos -= 0.005;
+//        if(HslidePos < 0.005)first=true;
+
         gHMap.ex.setPosition(HslidePos);
         gHMap.ex2.setPosition(HslidePos);
-        if(gamepad1.left_bumper && gamepad1.start){
-            HslidePos =0;
-        }
+
 
 
         if (gamepad1.dpad_right) {
@@ -279,9 +307,9 @@ public class Kinesis2_1_Sigma extends OpMode {
         }
 
         if(gibbs > 20){
-            slidePos = -200;
+            slidePos = -400;
         }
-        if(gibbs > 50){
+        if(gibbs > 60){
             gibbs = 0;
             armPosition = 0;
             armQueued = true;
@@ -309,6 +337,7 @@ public class Kinesis2_1_Sigma extends OpMode {
             armPosition = 2;
             bLast = true;
             armQueued = true;
+            toggle = true;
         }
 
         if (gamepad1.b && armPosition == 2 && !bLast) {
@@ -325,27 +354,27 @@ public class Kinesis2_1_Sigma extends OpMode {
                 // 0, 0
                 //        gHMap.jointPos(0, 0);
                 slidePos = -630;
-                gHMap.bone1.setTargetPosition(slidePos);
-                gHMap.bone2.setTargetPosition(slidePos);
-                gHMap.bone3.setTargetPosition(slidePos);
+//                gHMap.bone1.setTargetPosition(slidePos);
+//                gHMap.bone2.setTargetPosition(slidePos);
+//                gHMap.bone3.setTargetPosition(slidePos);
                 dY = 0 - armPositionL;
             }
             if (armPosition == 2) {//Wall Grab
                 //16 38
                 //        gHMap.jointPos(0.16, 0.38);
                 slidePos = 0;
-                gHMap.bone1.setTargetPosition(slidePos);
-                gHMap.bone2.setTargetPosition(slidePos);
-                gHMap.bone3.setTargetPosition(slidePos);
+//                gHMap.bone1.setTargetPosition(slidePos);
+//                gHMap.bone2.setTargetPosition(slidePos);
+//                gHMap.bone3.setTargetPosition(slidePos);
                 dY = 0.77 - armPositionL;
             }
             if (armPosition == 0) {//Transfer
                 //72
                 //        gHMap.jointPos(0.72, 0);
                 slidePos = 0;
-                gHMap.bone1.setTargetPosition(slidePos);
-                gHMap.bone2.setTargetPosition(slidePos);
-                gHMap.bone3.setTargetPosition(slidePos);
+//                gHMap.bone1.setTargetPosition(slidePos);
+//                gHMap.bone2.setTargetPosition(slidePos);
+//                gHMap.bone3.setTargetPosition(slidePos);
                 dY = 0.41 - armPositionL;
 //                        gHMap.smoothJoints(armPositionL, 0.065, 0.42);
 //                        armPositionL = 0.065;
@@ -365,6 +394,7 @@ public class Kinesis2_1_Sigma extends OpMode {
         } // ---------------------------- SWITCH FROM QUEUED TO MOVING ------------------------------
 
         if(armMoving){
+            if(armPosition ==2)slidePos = -200;
 //                    elapsedTime = System.currentTimeMillis() - armStartTime;
             intermJoint = dY/(1+Math.pow(E, (inverseSpeed)*armTime))+armPositionL;
             armTime++;
@@ -384,6 +414,7 @@ public class Kinesis2_1_Sigma extends OpMode {
                 else if (armPosition == 2) {//Wall Grab
                     armPositionL = 0.77;//0.77
                     armPositionH = 0.38;
+                    slidePos = 0;
                     jointPos(armPositionL,armPositionH);
                 }
                 else if (armPosition == 0) {//Transfer
@@ -492,7 +523,8 @@ public class Kinesis2_1_Sigma extends OpMode {
                 gHMap.wrist.setPosition(0.0);
                 airFryer = 0;
                 HslidePos = 0;
-                gHMap.zero8.setPower(0);
+//                gHMap.zero8.setPower(0);
+                slideStartTime = currentTime;
             }
 
 //                    if (gHMap.ClawSense.getDistance(DistanceUnit.INCH) < 2 && hue > 210 && hue < 270) {
@@ -558,7 +590,7 @@ public class Kinesis2_1_Sigma extends OpMode {
                 white = 0;
             }
         }
-        elapsedTime = System.currentTimeMillis() - armStartTime;
+        elapsedTime = currentTime - armStartTime;
 
         i++;
 
