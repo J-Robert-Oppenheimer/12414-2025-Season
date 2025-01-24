@@ -35,17 +35,19 @@ public class PedroPascal extends OpMode {
     private int pathState;
 
 
-    private PathChain one_zeroObs;
+    private PathChain obs2Spec5, spec2Park;
 
     public void buildPaths() {
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
-        one_zeroObs = follower.pathBuilder()
+        obs2Spec5 = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(SP.ObsZoneStart), new Point(SP.Specimen5)))
                 .setLinearHeadingInterpolation(SP.ObsZoneStart.getHeading(), SP.Specimen5.getHeading())
+                .build();
 
-                .addPath(new BezierLine(new Point(SP.Specimen5), new Point(SP.SampleIntakeObsSub)))
-                .setLinearHeadingInterpolation(SP.Specimen5.getHeading(), SP.SampleIntakeObsSub.getHeading())
+        spec2Park = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(SP.Specimen5), new Point(SP.ObsPark)))
+                .setLinearHeadingInterpolation(SP.Specimen5.getHeading(), SP.ObsPark.getHeading())
 
                 .build();
     }
@@ -53,11 +55,17 @@ public class PedroPascal extends OpMode {
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 0: // Move from start to scoring position
-                if (!follower.isBusy()) {
-                    follower.followPath(one_zeroObs);
-                    setPathState(1);
-                }
+                follower.followPath(obs2Spec5);
+
+
+                setPathState(1);
+
                 break;
+
+            case 1:
+                if (!follower.isBusy()){
+                    follower.followPath(spec2Park)
+                }
         }
     }
 

@@ -107,7 +107,9 @@ public class SP {
 
     public static final Pose ObsZoneIntake = new Pose(55, -66 + intakeRange, Math.toRadians(270)); // Obs Intake
 
+    public static final Pose ObsPark = new Pose(85, 98, Math.toRadians(90));
 
+    public static final Pose NetPark = new Pose(85, 46, Math.toRadians(-90));
 
 
 //
