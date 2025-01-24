@@ -30,10 +30,14 @@ import java.lang.annotation.Annotation;
 @Autonomous (name = "PedroPascal", group = "Autonomous")
 public class PedroPascal extends OpMode {
     private Follower follower;
+    private Timer pathTimer, actionTimer, opmodeTimer;
+
+    private int pathState;
+
 
     private PathChain one_zeroObs;
 
-    public void init() {
+    public void buildPaths() {
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
         one_zeroObs = follower.pathBuilder()
@@ -43,23 +47,35 @@ public class PedroPascal extends OpMode {
                 .addPath(new BezierLine(new Point(SP.Specimen5), new Point(SP.SampleIntakeObsSub)))
                 .setLinearHeadingInterpolation(SP.Specimen5.getHeading(), SP.SampleIntakeObsSub.getHeading())
 
-                .addPath(new BezierLine(new Point(SP.SampleIntakeObsSub), new Point(SP.SampleDropSub)))
-                .setLinearHeadingInterpolation(SP.SampleIntakeObsSub.getHeading(), SP.SampleDropSub.getHeading())
-
-                .addPath(new BezierLine(new Point(SP.SampleDropSub), new Point(SP.SampleIntakeObsMid)))
-                .setLinearHeadingInterpolation(SP.SampleDropSub.getHeading(), SP.SampleIntakeObsMid.getHeading())
-
-                .addPath(new BezierLine(new Point(SP.SampleIntakeObsMid), new Point(SP.SampleDropMid)))
-                .setLinearHeadingInterpolation(SP.SampleIntakeObsMid.getHeading(), SP.SampleDropMid.getHeading())
-
-                .addPath(new BezierLine(new Point(SP.SampleDropMid), new Point(SP.SampleIntakeObsWall)))
-                .setLinearHeadingInterpolation(SP.SampleDropMid.getHeading(), SP.SampleIntakeObsWall.getHeading())
-
-                .addPath(new BezierLine(new Point(SP.SampleIntakeObsWall), new Point(SP.SampleDropWall)))
-                .setLinearHeadingInterpolation(SP.SampleIntakeObsWall.getHeading(), SP.SampleDropWall.getHeading())
-
                 .build();
-        follower.followPath(one_zeroObs);
+    }
+
+    public void autonomousPathUpdate() {
+        switch (pathState) {
+            case 0: // Move from start to scoring position
+                if (!follower.isBusy()) {
+                    follower.followPath(one_zeroObs);
+                    setPathState(1);
+                }
+                break;
+        }
+    }
+
+    public void setPathState(int pState) {
+        pathState = pState;
+        pathTimer.resetTimer();
+    }
+
+    @Override
+    public void init() {
+        pathTimer = new Timer();
+        opmodeTimer = new Timer();
+        opmodeTimer.resetTimer();
+
+        Constants.setConstants(FConstants.class, LConstants.class);
+        follower = new Follower(hardwareMap);
+        follower.setStartingPose(SP.ObsZoneStart);
+        buildPaths();
     }
 
 //    @Override
@@ -83,21 +99,41 @@ public class PedroPascal extends OpMode {
 //    }
 
 
-//    public void init() {
+    //    public void init() {
 //        follower.followPath(one_zeroObs);
 //        buildPaths();
 //    }
-
     @Override
     public void loop() {
+
+        // These loop the movements of the robot
         follower.update();
-//        follower.followPath(one_zeroObs);
-        if (follower.atParametricEnd()) {
-            follower.followPath(one_zeroObs);
-        }
+        autonomousPathUpdate();
+
+        // Feedback to Driver Hub
+        telemetry.addData("path state", pathState);
+        telemetry.addData("x", follower.getPose().getX());
+        telemetry.addData("y", follower.getPose().getY());
+        telemetry.addData("heading", follower.getPose().getHeading());
+        telemetry.update();
+    }
+
+    @Override
+    public void init_loop() {
+    }
+
+    @Override
+    public void start() {
+        opmodeTimer.resetTimer();
+        setPathState(0);
+    }
+
+    @Override
+    public void stop() {
+    }
 
 //        follower.telemetryDebug(telemetryA);
-    }
+
 
 
 

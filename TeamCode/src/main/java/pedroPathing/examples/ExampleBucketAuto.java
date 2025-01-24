@@ -243,6 +243,23 @@ public class ExampleBucketAuto extends OpMode {
     }
 
     /** This is the main loop of the OpMode, it will run repeatedly after clicking "Play". **/
+
+
+    /** This method is called once at the init of the OpMode. **/
+    @Override
+    public void init() {
+        pathTimer = new Timer();
+        opmodeTimer = new Timer();
+        opmodeTimer.resetTimer();
+
+        Constants.setConstants(FConstants.class, LConstants.class);
+        follower = new Follower(hardwareMap);
+        follower.setStartingPose(startPose);
+        buildPaths();
+    }
+
+
+
     @Override
     public void loop() {
 
@@ -256,19 +273,6 @@ public class ExampleBucketAuto extends OpMode {
         telemetry.addData("y", follower.getPose().getY());
         telemetry.addData("heading", follower.getPose().getHeading());
         telemetry.update();
-    }
-
-    /** This method is called once at the init of the OpMode. **/
-    @Override
-    public void init() {
-        pathTimer = new Timer();
-        opmodeTimer = new Timer();
-        opmodeTimer.resetTimer();
-
-        Constants.setConstants(FConstants.class, LConstants.class);
-        follower = new Follower(hardwareMap);
-        follower.setStartingPose(startPose);
-        buildPaths();
     }
 
     /** This method is called continuously after Init while waiting for "play". **/
