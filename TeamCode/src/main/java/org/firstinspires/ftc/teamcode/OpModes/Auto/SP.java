@@ -42,9 +42,9 @@ public class SP {
         return new Vector(orig.getXComponent() - (netPlacementRange * Math.cos(Math.toRadians(theta))), orig.getYComponent() - (netPlacementRange * Math.sin(Math.toRadians(theta))));
     }
 
-    public static final Pose ObsZoneStart = new Pose(144 - lengthOffset, 96 - widthOffset, Math.toRadians(270));  // Obs start
+    public static final Pose ObsZoneStart = new Pose(144 - lengthOffset, 96 - widthOffset, Math.toRadians(0));  // Obs start
 
-    public static final Pose NetZoneStart = new Pose(96 - widthOffset, 143 - lengthOffset, Math.toRadians(270)); // Net start
+    public static final Pose NetZoneStart = new Pose(144 - widthOffset, 48 + lengthOffset, Math.toRadians(270)); // Net start
 
 
     public static final Pose Specimen1 = new Pose(66 + lengthOffset, 96 + placementRange, Math.toRadians(270)); // Specimen1
@@ -55,7 +55,7 @@ public class SP {
 
     public static final Pose Specimen4 = new Pose(61.5 + lengthOffset, 96 + placementRange, Math.toRadians(270)); // Specimen4
 
-    public static final Pose Specimen5 = new Pose(98 + lengthOffset, 72, Math.toRadians(270)); // Specimen5
+    public static final Pose Specimen5 = new Pose(98 + lengthOffset, 72, Math.toRadians(0)); // Specimen5
 
     public static final Pose NetSpecimen = new Pose(82.5, 96 + placementRange, Math.toRadians(270)); // Net Specimen
 
