@@ -1,40 +1,4 @@
-package org.firstinspires.ftc.teamcode.OpModes.Auto;
-
-
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
-
-import com.acmerobotics.dashboard.config.Config;
-import com.pedropathing.follower.Follower;
-import com.pedropathing.localization.Pose;
-import com.pedropathing.pathgen.BezierCurve;
-import com.pedropathing.pathgen.BezierLine;
-import com.pedropathing.pathgen.Path;
-import com.pedropathing.pathgen.PathChain;
-import com.pedropathing.pathgen.Point;
-import com.pedropathing.util.Constants;
-import com.pedropathing.util.Timer;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-
-import pedroPathing.constants.FConstants;
-import pedroPathing.constants.LConstants;
-
-import com.pedropathing.localization.Pose;
-import com.pedropathing.pathgen.Vector;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-
-import java.lang.annotation.Annotation;
-
-@Config
-@Autonomous (name = "PedroPascal", group = "Autonomous")
-public class PedroPascal extends OpMode {
-    private Follower follower;
-    private Timer pathTimer, actionTimer, opmodeTimer;
-
-    private int pathState;
-
-    private PathChain start2Net, net2Sub, sub2Net, net2Mid, mid2Net, net2Wall, wall2Net, net2Park;
+    private PathChain start2Net, net2Sub, sub2Net, net2Mid, mid2Net, net2Wall, wall2Net, net2Pickup, pickup2Net, net2Park;
 
     public void buildPaths() {
         Constants.setConstants(FConstants.class, LConstants.class);
@@ -72,6 +36,16 @@ public class PedroPascal extends OpMode {
         wall2Net = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(SP.SampleIntakeNetWall), new Point(SP.NetDiagonal)))
                 .setLinearHeadingInterpolation(SP.SampleIntakeNetWall.getHeading(), SP.NetDiagonal.getHeading())
+                .build();
+
+        net2Pickup = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(SP.NetDiagonal), new Point(SP.SamplePickupNet)))
+                .setLinearHeadingInterpolation(SP.NetDiagonal.getHeading(), SP.SamplePickupNet.getHeading())
+                .build();
+
+        pickup2Net = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(SP.SamplePickupNet), new Point(SP.NetDiagonal)))
+                .setLinearHeadingInterpolation(SP.SamplePickupNet.getHeading(), SP.NetDiagonal.getHeading())
                 .build();
 
         net2Park = follower.pathBuilder()
@@ -133,86 +107,36 @@ public class PedroPascal extends OpMode {
 
             case 7:
                 if (!follower.isBusy()){
+                    follower.followPath(net2Pickup);
+                    setPathState(8);
+                }
+                break;
+
+            case 8:
+                if (!follower.isBusy()){
+                    follower.followPath(pickup2Net);
+                    setPathState(9);
+                }
+                break;
+
+            case 9:
+                if (!follower.isBusy()){
+                    follower.followPath(net2Pickup);
+                    setPathState(10);
+                }
+                break;
+
+            case 10:
+                if (!follower.isBusy()){
+                    follower.followPath(pickup2Net);
+                    setPathState(11);
+                }
+                break;
+
+            case 11:
+                if (!follower.isBusy()){
                     follower.followPath(net2Park);
                 }
                 break;
         }
     }
-
-    public void setPathState(int pState) {
-        pathState = pState;
-        pathTimer.resetTimer();
-    }
-
-    @Override
-    public void init() {
-        pathTimer = new Timer();
-        opmodeTimer = new Timer();
-        opmodeTimer.resetTimer();
-
-        Constants.setConstants(FConstants.class, LConstants.class);
-        follower = new Follower(hardwareMap);
-        follower.setStartingPose(SP.NetZoneStart);
-        buildPaths();
-    }
-
-//    @Override
-//    public String name() {
-//        return "";
-//    }
-//
-//    @Override
-//    public String group() {
-//        return "";
-//    }
-//
-//    @Override
-//    public String preselectTeleOp() {
-//        return "";
-//    }
-//
-//    @Override
-//    public Class<? extends Annotation> annotationType() {
-//        return null;
-//    }
-
-
-    //    public void init() {
-//        follower.followPath(one_zeroObs);
-//        buildPaths();
-//    }
-    @Override
-    public void loop() {
-
-        // These loop the movements of the robot
-        follower.update();
-        autonomousPathUpdate();
-
-        // Feedback to Driver Hub
-        telemetry.addData("path state", pathState);
-        telemetry.addData("x", follower.getPose().getX());
-        telemetry.addData("y", follower.getPose().getY());
-        telemetry.addData("heading", follower.getPose().getHeading());
-        telemetry.update();
-    }
-
-    @Override
-    public void init_loop() {
-    }
-
-    @Override
-    public void start() {
-        opmodeTimer.resetTimer();
-        setPathState(0);
-    }
-
-    @Override
-    public void stop() {
-    }
-
-//        follower.telemetryDebug(telemetryA);
-
-
-
-
-}

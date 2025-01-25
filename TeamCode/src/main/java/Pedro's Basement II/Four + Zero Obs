@@ -1,4 +1,4 @@
-private PathChain start2Spec5, spec52SubIntake, subIntake2SubDrop, subDrop2MidIntake, midIntake2MidDrop, midDrop2WallIntake, wallIntake2WallDrop, wallDrop2Park;
+    private PathChain start2Spec5, spec52SubIntake, subIntake2SubDrop, subDrop2MidIntake, midIntake2MidDrop, midDrop2WallIntake, wallIntake2WallDrop, wallDrop2SpecIntake, specIntake2Spec4, spec42SpecIntake, specIntake2Spec3, spec32SpecIntake, specIntake2Spec2, spec22Park;
 
     public void buildPaths() {
         Constants.setConstants(FConstants.class, LConstants.class);
@@ -38,10 +38,41 @@ private PathChain start2Spec5, spec52SubIntake, subIntake2SubDrop, subDrop2MidIn
                 .setLinearHeadingInterpolation(SP.SampleIntakeObsWall.getHeading(), SP.SampleDropWall.getHeading())
                 .build();
 
-        wallDrop2Park = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(SP.SampleDropWall), new Point(65, 137), new Point(SP.ObsPark)))
-                .setLinearHeadingInterpolation(SP.SampleDropWall.getHeading(), SP.ObsPark.getHeading())
+        wallDrop2SpecIntake = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(SP.SampleDropWall), new Point(SP.ObsZoneIntake)))
+                .setLinearHeadingInterpolation(SP.SampleDropWall.getHeading(), SP.ObsZoneIntake.getHeading())
                 .build();
+
+        specIntake2Spec4 = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(SP.ObsZoneIntake), new Point(SP.Specimen4)))
+                .setLinearHeadingInterpolation(SP.ObsZoneIntake.getHeading(), SP.Specimen4.getHeading())
+                .build();
+
+        spec42SpecIntake = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(SP.Specimen4), new Point(SP.ObsZoneIntake)))
+                .setLinearHeadingInterpolation(SP.Specimen4.getHeading(), SP.ObsZoneIntake.getHeading())
+                .build();
+
+        specIntake2Spec3 = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(SP.ObsZoneIntake), new Point(SP.Specimen3)))
+                .setLinearHeadingInterpolation(SP.ObsZoneIntake.getHeading(), SP.Specimen3.getHeading())
+                .build();
+
+        spec32SpecIntake = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(SP.Specimen3), new Point(SP.ObsZoneIntake)))
+                .setLinearHeadingInterpolation(SP.Specimen3.getHeading(), SP.ObsZoneIntake.getHeading())
+                .build();
+
+        specIntake2Spec2 = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(SP.ObsZoneIntake), new Point(SP.Specimen2)))
+                .setLinearHeadingInterpolation(SP.ObsZoneIntake.getHeading(), SP.Specimen2.getHeading())
+                .build();
+
+        spec22Park = follower.pathBuilder()
+                .addPath(new BezierCurve(new Point(SP.Specimen2), new Point(140, 106), new Point(85, 140), new Point(SP.ObsPark)))
+                .build();
+
+
     }
 
     public void autonomousPathUpdate() {
@@ -97,7 +128,49 @@ private PathChain start2Spec5, spec52SubIntake, subIntake2SubDrop, subDrop2MidIn
 
             case 7:
                 if (!follower.isBusy()){
-                    follower.followPath(wallDrop2Park);
+                    follower.followPath(wallDrop2SpecIntake);
+                    setPathState(8);
+                }
+                break;
+
+            case 8:
+                if (!follower.isBusy()){
+                    follower.followPath(specIntake2Spec4);
+                    setPathState(9);
+                }
+                break;
+
+            case 9:
+                if (!follower.isBusy()){
+                    follower.followPath(spec42SpecIntake);
+                    setPathState(10);
+                }
+                break;
+
+            case 10:
+                if (!follower.isBusy()){
+                    follower.followPath(specIntake2Spec3);
+                    setPathState(11);
+                }
+                break;
+
+            case 11:
+                if (!follower.isBusy()){
+                    follower.followPath(spec32SpecIntake);
+                    setPathState(12);
+                }
+                break;
+
+            case 12:
+                if (!follower.isBusy()){
+                    follower.followPath(specIntake2Spec2);
+                    setPathState(13);
+                }
+                break;
+
+            case 13:
+                if (!follower.isBusy()){
+                    follower.followPath(spec22Park);
                 }
                 break;
         }

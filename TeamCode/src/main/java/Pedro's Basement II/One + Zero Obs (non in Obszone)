@@ -1,13 +1,15 @@
+private PathChain start2Spec5, spec52Park
+
 public void buildPaths() {
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
-        obs2Spec5 = follower.pathBuilder()
+        start2Spec5 = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(SP.ObsZoneStart), new Point(SP.Specimen5)))
                 .setLinearHeadingInterpolation(SP.ObsZoneStart.getHeading(), SP.Specimen5.getHeading())
                 .build();
 
-        spec2Park = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(SP.Specimen5), new Point(SP.ObsPark)))
+        spec52Park = follower.pathBuilder()
+                .addPath(new BezierCurve(new Point(SP.Specimen5), new Point(140, 106), new Point(85, 140), new Point(SP.ObsPark)))
                 .setLinearHeadingInterpolation(SP.Specimen5.getHeading(), SP.ObsPark.getHeading())
 
                 .build();
@@ -16,7 +18,7 @@ public void buildPaths() {
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 0: // Move from start to scoring position
-                follower.followPath(obs2Spec5);
+                follower.followPath(start2Spec5);
 
 
                 setPathState(1);
@@ -25,7 +27,7 @@ public void buildPaths() {
 
             case 1:
                 if (!follower.isBusy()){
-                    follower.followPath(spec2Park);
+                    follower.followPath(spec52Park);
                 }
         }
     }
