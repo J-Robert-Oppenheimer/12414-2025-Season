@@ -47,17 +47,19 @@ public class SP {
     public static final Pose NetZoneStart = new Pose(144 - widthOffset, 48 + lengthOffset, Math.toRadians(270)); // Net start
 
 
-    public static final Pose Specimen1 = new Pose(66 + lengthOffset, 96 + placementRange, Math.toRadians(270)); // Specimen1
+    public static final Pose Specimen0 = new Pose(96 + lengthOffset, 76.5 + placementRange, Math.toRadians(270));
 
-    public static final Pose Specimen2 = new Pose(64.5 + lengthOffset, 96 + placementRange, Math.toRadians(270)); // Specimen2
+    public static final Pose Specimen1 = new Pose(96 + lengthOffset, 78 + placementRange, Math.toRadians(270)); // Specimen1
 
-    public static final Pose Specimen3 = new Pose(63 + lengthOffset, 96 + placementRange, Math.toRadians(270)); // Specimen3
+    public static final Pose Specimen2 = new Pose(96 + lengthOffset, 79.5 + placementRange, Math.toRadians(270)); // Specimen2
 
-    public static final Pose Specimen4 = new Pose(61.5 + lengthOffset, 96 + placementRange, Math.toRadians(270)); // Specimen4
+    public static final Pose Specimen3 = new Pose(96 + lengthOffset, 81 + placementRange, Math.toRadians(270)); // Specimen3
 
-    public static final Pose Specimen5 = new Pose(98 + lengthOffset, 72, Math.toRadians(0)); // Specimen5
+    public static final Pose Specimen4 = new Pose(96 + lengthOffset, 82.5 + placementRange, Math.toRadians(270)); // Specimen4
 
-    public static final Pose NetSpecimen = new Pose(82.5, 96 + placementRange, Math.toRadians(270)); // Net Specimen
+    public static final Pose Specimen5 = new Pose(96 + lengthOffset, 63, Math.toRadians(0)); // Specimen5
+
+    public static final Pose NetSpecimen = new Pose(96, 82.5 + placementRange, Math.toRadians(270)); // Net Specimen
 
 
     public static final Pose NetDiagonal = new Pose(72 - netPlacementRangex(45), 72 - netPlacementRangey(45), Math.toRadians(225)); // Net Diagonal
@@ -105,7 +107,7 @@ public class SP {
 
     public static final Pose ObsZone = new Pose(-55, 66 - widthOffset, Math.toRadians(270)); // Obs Zone
 
-    public static final Pose ObsZoneIntake = new Pose(55, -66 + intakeRange, Math.toRadians(270)); // Obs Intake
+    public static final Pose ObsZoneIntake = new Pose(-55, 66 - intakeRange, Math.toRadians(270)); // Obs Intake
 
     public static final Pose ObsPark = new Pose(85, 98, Math.toRadians(90));
 
