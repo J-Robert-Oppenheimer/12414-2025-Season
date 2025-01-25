@@ -70,16 +70,17 @@ public class Kinesis2_1_Sigma extends OpMode {
     int white;
     double dY;
     double low0, highF, lowF;
-    double speed = 1;
+    double speed = 2;
     double inverseSpeed = -1/speed;
     double E = Math.E;
     double intermJoint;
+    double Singapore_Im_Senatorian = 0;
 
 
 
     // ------------------ Booleans ------------------
     boolean toggle = false;// Tracks the current toggle state
-    boolean first = true;
+    boolean first = false;
     boolean prevButton = false;
     boolean blueClaw = false;
     boolean yellowClaw = false;
@@ -109,6 +110,9 @@ public class Kinesis2_1_Sigma extends OpMode {
     boolean vSlideLowering = false;
     int lastSlidePos;
     long vSlideStart;
+    double col=0;
+    boolean triangle2 = false, square2 = false, lastTriangle2, lastSquare2;
+    boolean currentY;
 
     /**
      * This initializes the PoseUpdater, the mecanum drive motors, and the FTC Dashboard telemetry.
@@ -147,10 +151,10 @@ public class Kinesis2_1_Sigma extends OpMode {
             motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
 
-        telemetryA = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
-        telemetryA.addLine("This will print your robot's position to telemetry while "
-                + "allowing robot control through a basic mecanum drive on gamepad 1.");
-        telemetryA.update();
+//        telemetryA = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
+//        telemetryA.addLine("This will print your robot's position to telemetry while "
+//                + "allowing robot control through a basic mecanum drive on gamepad 1.");
+//        telemetryA.update();
 
         Drawing.drawRobot(poseUpdater.getPose(), "#4CAF50");
         Drawing.sendPacket();
@@ -184,11 +188,11 @@ public class Kinesis2_1_Sigma extends OpMode {
         rightFront.setPower(rightFrontPower);
         rightRear.setPower(rightRearPower);
 
-        telemetryA.addData("x", poseUpdater.getPose().getX());
-        telemetryA.addData("y", poseUpdater.getPose().getY());
-        telemetryA.addData("heading", poseUpdater.getPose().getHeading());
-        telemetryA.addData("total heading", poseUpdater.getTotalHeading());
-        telemetryA.update();
+//        telemetryA.addData("x", poseUpdater.getPose().getX());
+//        telemetryA.addData("y", poseUpdater.getPose().getY());
+//        telemetryA.addData("heading", poseUpdater.getPose().getHeading());
+//        telemetryA.addData("total heading", poseUpdater.getTotalHeading());
+//        telemetryA.update();
 
 
         //Right Trigger = Vertical Extend
@@ -210,11 +214,19 @@ public class Kinesis2_1_Sigma extends OpMode {
 
 
         //                slidePos = (slidePos > -630?gamepad1.right_trigger
+
+
+        gamepad1.setLedColor(col,col,col,1000);
+        col++;
+        col%=255;
         if (slidePos > -660 && gamepad1.right_trigger > 0.5) {
             slidePos-=5;
-            if (gamepad1.start) {
-                slidePos = -570;
-            }
+//            if (gamepad1.start) {
+//                slidePos = -570;
+//            }
+        }
+        else if(gamepad1.ps){
+            slidePos = -330;
         }
 
         if (slidePos < 0 && gamepad1.left_trigger > 0.5) {
@@ -222,13 +234,15 @@ public class Kinesis2_1_Sigma extends OpMode {
         }
 
 
-//        power = (!vSlideLowering && )?0:1;
+//        power = (!vSlideLowering)?0:1;
         if(slidePos > lastSlidePos)vSlideLowering = true;
-        if(vSlideLowering)power = 0.1;
+        if(vSlideLowering)power = 0.3;
         else if(Math.abs(slidePos) < 2 && Math.abs(gHMap.bone1.getCurrentPosition()) < 3)power = 0;
         else power = 1;
-        if(!vSlideLowering)slidePos = lastSlidePos;
+        if(!vSlideLowering)lastSlidePos = slidePos;
         if(Math.abs(slidePos- gHMap.bone1.getCurrentPosition()) < 4)vSlideLowering =false;
+
+//        power = (Math.abs(slidePos) < 3 && Math.abs(gHMap.bone1.getCurrentPosition()) < 3?0:1);
 
         gHMap.bone1.setPower(power);
 //        gHMap.bone2.setPower(power);
@@ -241,19 +255,23 @@ public class Kinesis2_1_Sigma extends OpMode {
 
         //------------------- HORIZONTAL SLIDES --------------------------
         if (gamepad1.right_bumper && HslidePos < 1.0) {
-            HslidePos = 0.95; currentTime = slideStartTime;HslideRetract = true;
+            first = true;
+            HslidePos = 0.95; slideStartTime = currentTime;HslideRetract = true;
 
         }
-        if(first && currentTime > slideStartTime + 250){
+        if(first && currentTime > slideStartTime + 500){
             gHMap.wrist.setPosition(0.18);
+            gHMap.wrist2.setPosition(0.18);
             first = false;
         }
         if(gamepad1.left_bumper){
             HslidePos = 0;
             gHMap.wrist.setPosition(0.0);
-            currentTime = slideStartTime2;
+            gHMap.wrist2.setPosition(0.0);
+            slideStartTime2 = currentTime;
+            HslideRetract =true;
         }
-        if(slideStartTime2 + 500 > currentTime && HslideRetract && HslidePos < 0.01){
+        if(currentTime - slideStartTime2  > 1000 && HslideRetract && HslidePos < 0.02){
             gHMap.zero8.setPower(0);
             HslideRetract =false;
         }
@@ -280,13 +298,15 @@ public class Kinesis2_1_Sigma extends OpMode {
 
         if (gamepad1.dpad_down) {
             gHMap.wrist.setPosition(0.18);
+            gHMap.wrist2.setPosition(0.18);
         }
         else if (gamepad1.dpad_up) {
             gHMap.wrist.setPosition(0.0);
+            gHMap.wrist2.setPosition(0.0);
         }
 
 
-        boolean currentY = gamepad1.y;
+        currentY = gamepad1.y;
 
         // Toggle logic
         if (currentY && !prevButton) {
@@ -362,7 +382,6 @@ public class Kinesis2_1_Sigma extends OpMode {
             if (armPosition == 2) {//Wall Grab
                 //16 38
                 //        gHMap.jointPos(0.16, 0.38);
-                slidePos = 0;
 //                gHMap.bone1.setTargetPosition(slidePos);
 //                gHMap.bone2.setTargetPosition(slidePos);
 //                gHMap.bone3.setTargetPosition(slidePos);
@@ -383,6 +402,7 @@ public class Kinesis2_1_Sigma extends OpMode {
             if (armPosition == 3) {//Spec Place Position
                 //05 22
                 dY = 0.24 - armPositionL;
+                slidePos = -125;
             }
             armQueued = false;
             armMoving = true;
@@ -415,6 +435,7 @@ public class Kinesis2_1_Sigma extends OpMode {
                     armPositionL = 0.77;//0.77
                     armPositionH = 0.38;
                     slidePos = 0;
+                    toggle = false;
                     jointPos(armPositionL,armPositionH);
                 }
                 else if (armPosition == 0) {//Transfer
@@ -429,13 +450,6 @@ public class Kinesis2_1_Sigma extends OpMode {
                 }
             }
         }//Arm moving finished
-
-//                if(armFinished){
-//
-//                }
-
-
-        //TODO - AUTO ROUTES - COLOR SENSORS - STREAMLINING
 
 
         // -- COLOR FUNCTIONS --
@@ -488,7 +502,7 @@ public class Kinesis2_1_Sigma extends OpMode {
             if (hue > 156 && hue < 164) {
                 telemetry.addData("Color", "White");
                 white++;
-                if (white > 40) {
+                if (white > 30) {
                     toggle = false;
                 }
             } else {
@@ -519,12 +533,18 @@ public class Kinesis2_1_Sigma extends OpMode {
             } else if (hue2 > 50 && hue2 < 85) {
                 airFryer++;
             }
+            if (hue2 > 156 && hue2 < 164 && HslidePos > 0.5) {
+                gHMap.zero8.setPower(-1);
+            }
+
             if(airFryer > 8){
                 gHMap.wrist.setPosition(0.0);
+                gHMap.wrist2.setPosition(0.0);
                 airFryer = 0;
                 HslidePos = 0;
 //                gHMap.zero8.setPower(0);
-                slideStartTime = currentTime;
+                HslideRetract = true;
+                slideStartTime2 = currentTime;
             }
 
 //                    if (gHMap.ClawSense.getDistance(DistanceUnit.INCH) < 2 && hue > 210 && hue < 270) {
@@ -532,6 +552,7 @@ public class Kinesis2_1_Sigma extends OpMode {
 //                    } else if (gHMap.ClawSense.getDistance(DistanceUnit.INCH) < 2 && hue > 50 && hue < 80) {
 //                        gHMap.zero8.setPower(-1);
 //                    }
+
 
         }
 
@@ -566,24 +587,39 @@ public class Kinesis2_1_Sigma extends OpMode {
                 telemetry.addData("Color", "Red");
             } else if (hue > 210 && hue < 270) {
                 telemetry.addData("Color", "Blue");
-                gHMap.zero8.setPower(1);
             } else if (hue > 50 && hue < 70) {
                 telemetry.addData("Color", "Yellow");
             } else {
                 telemetry.addData("Color", "Unknown");
             }
             clawDist = gHMap.ClawSense.getDistance(DistanceUnit.INCH);
+
             if (clawDist < 2 && hue > 210 && hue < 270 && clawDist > 0.5) {
                 toggle = true;
-                slidePos = -200;
-            } else if (clawDist < 2 && hue > 50 && hue < 80 && clawDist > 0.5) {
-                toggle = true;
-                slidePos = -200;
+                Singapore_Im_Senatorian++;
+                if(Singapore_Im_Senatorian > 7)slidePos = -120;
+
+                if(Math.abs(gHMap.bone1.getCurrentPosition()+120) < 3) {
+                    armPosition = 3;
+                    armQueued = true;
+                }
+            }
+//            else if (clawDist < 2 && hue > 50 && hue < 80 && clawDist > 0.5) {
+//                toggle = true;
+//                Singapore_Im_Senatorian++;
+//                if(Singapore_Im_Senatorian > 7)slidePos = -130;
+//                if(Math.abs(gHMap.bone1.getCurrentPosition()+130) < 3){
+//                    armPosition = 3;
+//                    armQueued = true;
+//                }
+//            }
+            else{
+                Singapore_Im_Senatorian = 0;
             }
             if (hue > 156 && hue < 164) {
                 telemetry.addData("Color", "White");
                 white++;
-                if (white > 40) {
+                if (white > 13) {
                     toggle = false;
                 }
             } else {
@@ -612,13 +648,44 @@ public class Kinesis2_1_Sigma extends OpMode {
 
             if(gamepad2.dpad_down){
                 gHMap.wrist.setPosition(0.18);
+                gHMap.wrist2.setPosition(0.18);
             }
             if(gamepad2.dpad_up){
                 gHMap.wrist.setPosition(0);
+                gHMap.wrist2.setPosition(0);
+            }
+            if(gamepad2.start && gamepad2.back){
+                gHMap.bone1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                gHMap.bone3.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                gHMap.bone1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                gHMap.bone3.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             }
 
 
+            // Toggle logic
+            if (gamepad2.triangle && !lastTriangle2) {
+                triangle2  = !triangle2 ;
+            }
+            // Update the previous button state
+            lastTriangle2 = gamepad2.triangle;
+
+
+
+
+
+             ;
+
         }
+        if(triangle2){
+            if(poseUpdater.getPose().getX() < 28 && poseUpdater.getPose().getY() > 125){
+                gamepad2.rumble(1000);
+            }
+            else{
+                gamepad2.setLedColor(255,0,0,10000);
+            }
+
+        }
+
 
 
 
@@ -633,6 +700,8 @@ public class Kinesis2_1_Sigma extends OpMode {
 
         //-------------- end of bot functions -----------------
         telemetry.addData("Gibbs", gibbs);
+        telemetry.addData("Power", power);
+        telemetry.addData("DOWN?", vSlideLowering);
         telemetry.addData("Hue 2", hue2);
         telemetry.addData("Airfryer", airFryer);
         telemetry.addData("CurrentPos LowJoint", armPositionL);
@@ -645,6 +714,8 @@ public class Kinesis2_1_Sigma extends OpMode {
         telemetry.addData("Bone2", gHMap.bone2.getCurrentPosition());
         telemetry.addData("Bone3", gHMap.bone3.getCurrentPosition());
         telemetry.addData("ElapsedTime", (double)elapsedTime/1000);
+        telemetry.addData("SlideTime", slideStartTime);
+        telemetry.addData("TIME", currentTime);
 //                telemetry.addData("armStartTime", armStartTime);
         telemetry.addData("armTime", armTime);
         telemetry.addData("interm Joint", intermJoint);

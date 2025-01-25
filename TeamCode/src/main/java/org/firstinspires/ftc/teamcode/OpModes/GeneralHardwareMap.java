@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode.OpModes;
 
+import android.graphics.Color;
+
 import java.util.ArrayList;
+import java.util.Objects;
 
 
 import com.acmerobotics.dashboard.config.Config;
@@ -62,17 +65,21 @@ public class GeneralHardwareMap {
     public Servo zero, zero2, zero3, zero4, zero5;
     public CRServo zero8;
     public Servo lowJointLeft, lowJointRight, highJointLeft, highJointRight;
-    public ColorRangeSensor SlurpSense, ClawSense;
+    public ColorRangeSensor SlurpSense, ClawSense, INTERCLAW;
 
     public boolean halfSpeedToggle = true;
     public boolean aLast = false;
+    float[] HSVVALUES = new float[3];
 
 
     public boolean drivingReverse = false;
     public boolean yLast = false;
 
 
-
+    public double LOW0;
+    public double LOWF;
+    public double HIGHF;
+    public boolean CLAWBEHAVIOR;
     public double yMovement;
     public double xMovement;
     public double rotation;
@@ -131,8 +138,8 @@ public class GeneralHardwareMap {
     public void initRANDOMOTOR2(String motorName) {
         slideLength = this.opMode.hardwareMap.dcMotor.get(motorName);
         slideLength.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);}
-    public void openClaw(){claw.setPosition(0);}
-    public void closeClaw(){claw.setPosition(0.2);}
+    public void openClaw(){zero5.setPosition(0);}
+    public void closeClaw(){zero5.setPosition(0.24);}
 
     public void jointPos(double lowerAngle, double upperAngle){
         zero.setPosition(lowerAngle);
@@ -400,6 +407,9 @@ public void upperGrabberJoint(double g){}
 //                bone3.setPower(0.1);
 //                dEnc = bone1.getCurrentPosition() - lastEnc;
 //            }
+            bone1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            bone2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            bone3.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
 
             //AFTER AUTOMATIC ENCODER RESET -----------
@@ -485,6 +495,7 @@ public void upperGrabberJoint(double g){}
         openClaw();
     }
 
+
     public void smoothJoints(double low0, double lowF, double highF){
         double dY = lowF-low0;
 //        double iY = low0;
@@ -496,6 +507,174 @@ public void upperGrabberJoint(double g){}
             jointPos(dY/(1+Math.pow(Math.E, inverse*i))+low0,T);
         }
         jointPos(lowF, highF);
+    }
+    public void motorPos(int Pos){
+        bone1.setTargetPosition(Pos);
+        bone3.setTargetPosition(Pos);
+    }
+    public void HSlidePos(double Pos){
+        ex.setPosition(Pos);
+        ex2.setPosition(Pos);}
+    public void WristPos(double Pos){
+        wrist.setPosition(Pos);
+        wrist2.setPosition(Pos);
+    }
+    public void armHandler(int lastArmPos, int desiredArmPos){
+        int SLIDEPOS0 = 0;
+        int SLIDEPOSF = 0;
+        if(lastArmPos != desiredArmPos){
+            switch (lastArmPos) {
+                case 0: // Transfer
+                    //description = "Transfer position: Low joint = 0.41, High joint = 0.34";
+                    LOW0 = 0.41;
+                    break;
+
+                case 1: // Sample
+                    //description = "Sample position: Low joint = 0.0, High joint = 0.2";
+                    LOW0 = 0.0;
+                    break;
+
+                case 2: // Wall Grab
+                    //description = "Wall Grab position: Low joint = 0.77, High joint = 0.38";
+                    LOW0 = 0.77;
+                    break;
+
+                case 3: // Spec Place Position
+                    //description = "Spec Place position: Low joint = 0.24, High joint = 0.22";
+                    LOW0 = 0.24;
+                    break;
+
+                default: // Catch-all for invalid cases
+                    //description = "Invalid arm position! Please use a value between 0 and 3.";
+                    break;
+            }
+            //DETERMINE THE LAST POSITION OF THE ARM
+
+            switch (desiredArmPos) {
+                case 0: // Transfer
+                    //description = "Transfer position: Low joint = 0.41, High joint = 0.34";
+                    LOWF = 0.41;
+                    HIGHF = 0.34;
+                    SLIDEPOS0 = -50;
+                    SLIDEPOSF = 0;
+                    break;
+
+                case 1: // Sample
+                    //description = "Sample position: Low joint = 0.0, High joint = 0.2";
+                    LOWF = 0;
+                    HIGHF = 0.2;
+                    SLIDEPOS0 = -100;
+                    SLIDEPOSF = -630;
+                    break;
+
+                case 2: // Wall Grab
+                    //description = "Wall Grab position: Low joint = 0.77, High joint = 0.38";
+                    LOWF = 0.77;
+                    HIGHF = 0.38;
+                    SLIDEPOS0 = -100;
+                    SLIDEPOSF = -0;
+
+                    break;
+
+                case 3: // Spec Place Position
+                    //description = "Spec Place position: Low joint = 0.24, High joint = 0.22";
+                    LOWF = 0.24;
+                    HIGHF = 0.2;
+                    SLIDEPOS0 = -50;
+                    SLIDEPOSF = -125;
+                    break;
+
+                default: // Catch-all for invalid cases
+                    //description = "Invalid arm position! Please use a value between 0 and 3.";
+                    break;
+            }
+            //DETERMINE DESIRED POSITION
+            motorPos(SLIDEPOS0);
+            smoothJoints(LOW0,LOWF,HIGHF);
+            motorPos(SLIDEPOSF);
+            //RUN THE CLAW TO THE DESIRED POINT
+
+        }
+    }
+
+    public void autoColorBehavior(int CurrentArmPos, boolean Blue, String sensor){
+        float hue;
+        int colorDetect = 0;
+        int yellowDetect = 0;
+        int i = 0;
+        boolean sample = false, specimen = false, CONTINUE = false;
+        switch (sensor) {
+            case "CLAW":
+
+
+                break;
+
+            case "SLURP":
+                zero8.setPower(-1);HSlidePos(0.95);WristPos(0.18);
+
+                while(i < 100) {
+                    Color.RGBToHSV(
+                            (int) (SlurpSense.red() * 255.0 / 1023),
+                            (int) (SlurpSense.green() * 255.0 / 1023),
+                            (int) (SlurpSense.blue() * 255.0 / 1023),
+                            HSVVALUES
+                    );
+                    hue = HSVVALUES[0];
+
+                    if (hue < 30 || hue > 330) {//RED
+                        if(Blue) {
+                            zero8.setPower(1);
+                        } else {colorDetect++;}
+                    } else if (hue > 210 && hue < 270) {//BLUE
+                        if(!Blue) {
+                            zero8.setPower(1);
+                        } else{colorDetect++;}
+                    } else if (hue > 50 && hue < 85) {yellowDetect++;}
+                    if (hue > 156 && hue < 164) {zero8.setPower(-1);}
+
+                    if (yellowDetect > 40) {
+                        wrist.setPosition(0.0);
+                        wrist2.setPosition(0.0);
+                        HSlidePos(0);sample = true;i = 100;
+                    }
+                    if (colorDetect > 40) {
+                        wrist.setPosition(0.0);
+                        wrist2.setPosition(0.0);
+                        HSlidePos(0);specimen = true;i = 100;
+                    }
+                    i++;//OR I will set to 100
+                }
+                while(!CONTINUE){
+                    Color.RGBToHSV(
+                            (int) (ClawSense.red() * 255.0 / 1023),
+                            (int) (ClawSense.green() * 255.0 / 1023),
+                            (int) (ClawSense.blue() * 255.0 / 1023),
+                            HSVVALUES
+                    );
+                    hue = HSVVALUES[0];
+                    if(hue < 30 || hue > 330 || (hue > 50 && hue < 85) || (hue > 210 && hue < 270)){
+                        CONTINUE = true;
+                        closeClaw();
+                    }
+
+                        i++;
+                    if(i>400)return;
+                }
+                if(specimen)armHandler(CurrentArmPos, 2);
+                if(sample)armHandler(CurrentArmPos, 1);
+
+
+
+                break;
+
+            default: // Catch-all for invalid cases
+                //description = "Invalid arm position! Please use a value between 0 and 3.";
+                break;
+        }
+
+
+
+
     }
 
 }

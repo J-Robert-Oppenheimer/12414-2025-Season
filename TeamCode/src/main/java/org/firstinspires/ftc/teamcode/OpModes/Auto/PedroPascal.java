@@ -24,15 +24,20 @@ import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.Vector;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+import org.firstinspires.ftc.teamcode.OpModes.GeneralHardwareMap;
+
 import java.lang.annotation.Annotation;
 
 @Config
 @Autonomous (name = "PedroPascal", group = "Autonomous")
 public class PedroPascal extends OpMode {
+    GeneralHardwareMap gHMap = new GeneralHardwareMap(this);
     private Follower follower;
     private Timer pathTimer, actionTimer, opmodeTimer;
 
     private int pathState;
+    private double LowJointPos;
+    private double HighJointPos;
 
 
     private PathChain obs2Spec5, spec2Park;
@@ -56,15 +61,14 @@ public class PedroPascal extends OpMode {
         switch (pathState) {
             case 0: // Move from start to scoring position
                 follower.followPath(obs2Spec5);
-
-
+//                gHMap.smoothJoints(LowJointPos,0.41,0.34);
+//                LowJointPos = 0.41;
                 setPathState(1);
-
                 break;
 
             case 1:
                 if (!follower.isBusy()){
-                    follower.followPath(spec2Park)
+                    follower.followPath(spec2Park);
                 }
         }
     }
@@ -76,6 +80,10 @@ public class PedroPascal extends OpMode {
 
     @Override
     public void init() {
+//        gHMap.init("Kineses");
+//        gHMap.smoothJoints(0,0.28,0.30);
+        LowJointPos = 0.28;
+
         pathTimer = new Timer();
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
