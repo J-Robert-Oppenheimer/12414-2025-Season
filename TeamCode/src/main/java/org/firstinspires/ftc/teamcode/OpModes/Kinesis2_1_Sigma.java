@@ -725,6 +725,7 @@ public class Kinesis2_1_Sigma extends OpMode {
         telemetry.addData("interm Joint", intermJoint);
         telemetry.addData("iterator", i);
         telemetry.addData("Processing Speed", i/((double)elapsedTime/1000));
+        telemetry.addData("GAME COLOR", col);
 
         telemetry.update();
 
