@@ -57,7 +57,7 @@ public class Kinesis2_1_Sigma extends OpMode {
 
     GeneralHardwareMap gHMap = new GeneralHardwareMap(this);
 
-    public int armPosition = 4;
+    public int armPosition = 1;
     public double armPositionL = 0;
     public double armPositionH = 0;
     public boolean armQueued = false;
@@ -124,6 +124,10 @@ public class Kinesis2_1_Sigma extends OpMode {
         lowR = gHMap.zero2;
         highL = gHMap.zero3;
         highR = gHMap.zero4;
+        gHMap.armHandler(armPosition, 0);
+        armPosition = 0;
+        armPositionH = 0.34;
+        armPositionL = 0.41;
 
         Constants.setConstants(FConstants.class, LConstants.class);
         poseUpdater = new PoseUpdater(hardwareMap);
@@ -221,9 +225,9 @@ public class Kinesis2_1_Sigma extends OpMode {
         col%=255;
         if (slidePos > -660 && gamepad1.right_trigger > 0.5) {
             slidePos-=5;
-//            if (gamepad1.start) {
-//                slidePos = -570;
-//            }
+            if (gamepad1.start) {
+                slidePos = -570;
+            }
         }
         else if(gamepad1.ps){
             slidePos = -330;
@@ -236,7 +240,7 @@ public class Kinesis2_1_Sigma extends OpMode {
 
 //        power = (!vSlideLowering)?0:1;
         if(slidePos > lastSlidePos)vSlideLowering = true;
-        if(vSlideLowering)power = 0.3;
+        if(vSlideLowering)power = 0.4;
         else if(Math.abs(slidePos) < 2 && Math.abs(gHMap.bone1.getCurrentPosition()) < 3)power = 0;
         else power = 1;
         if(!vSlideLowering)lastSlidePos = slidePos;
@@ -326,10 +330,10 @@ public class Kinesis2_1_Sigma extends OpMode {
             gibbs++;
         }
 
+//        if(gibbs > 20){
+//            slidePos = -400;
+//        }
         if(gibbs > 20){
-            slidePos = -400;
-        }
-        if(gibbs > 60){
             gibbs = 0;
             armPosition = 0;
             armQueued = true;

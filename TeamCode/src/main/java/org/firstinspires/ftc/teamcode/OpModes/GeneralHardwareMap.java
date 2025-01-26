@@ -9,6 +9,7 @@ import java.util.Objects;
 import com.acmerobotics.dashboard.config.Config;
 
 
+import com.pedropathing.util.Timer;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.dfrobot.HuskyLens;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -95,11 +96,12 @@ public class GeneralHardwareMap {
     public static double minSlideLength = 12;
     public Telemetry telemetry;
     public static double stackNum = 0;
-
+    Timer COLORTIME = new Timer();
 
     public GeneralHardwareMap(OpMode opMode) {
         this.opMode = opMode;
     }
+
 
     public GeneralHardwareMap(LinearOpMode opMode) {this.opMode = opMode;}
 //    public void initSTDPoints(String Color, String Side){stdPos.initializeStandardPoints(Side, Color);}
@@ -500,7 +502,7 @@ public void upperGrabberJoint(double g){}
         double dY = lowF-low0;
 //        double iY = low0;
         double T = 0.62;
-        int speed = 60;
+        int speed = 40;
         double inverse = (double) -1 /speed;
         for(int i = speed * -5; i < 7*speed; i++){
            // lockArm2Height(dY/(1+Math.pow(Math.E, inverse*i))+low0, L);
@@ -519,9 +521,12 @@ public void upperGrabberJoint(double g){}
         wrist.setPosition(Pos);
         wrist2.setPosition(Pos);
     }
+    public void autoExtend(){zero8.setPower(-1);HSlidePos(0.95);WristPos(0.18);}
+    public void autoExtendHalf(){zero8.setPower(-1);HSlidePos(0.55);WristPos(0.18);}
     public void armHandler(int lastArmPos, int desiredArmPos){
         int SLIDEPOS0 = 0;
         int SLIDEPOSF = 0;
+        double POWER = 1;
         if(lastArmPos != desiredArmPos){
             switch (lastArmPos) {
                 case 0: // Transfer
@@ -532,6 +537,7 @@ public void upperGrabberJoint(double g){}
                 case 1: // Sample
                     //description = "Sample position: Low joint = 0.0, High joint = 0.2";
                     LOW0 = 0.0;
+                    POWER = 0.3;
                     break;
 
                 case 2: // Wall Grab
@@ -563,7 +569,7 @@ public void upperGrabberJoint(double g){}
                     //description = "Sample position: Low joint = 0.0, High joint = 0.2";
                     LOWF = 0;
                     HIGHF = 0.2;
-                    SLIDEPOS0 = -100;
+                    SLIDEPOS0 = -630;
                     SLIDEPOSF = -630;
                     break;
 
@@ -589,6 +595,7 @@ public void upperGrabberJoint(double g){}
                     break;
             }
             //DETERMINE DESIRED POSITION
+            bone1.setPower(POWER);bone3.setPower(POWER);
             motorPos(SLIDEPOS0);
             smoothJoints(LOW0,LOWF,HIGHF);
             motorPos(SLIDEPOSF);
@@ -602,17 +609,37 @@ public void upperGrabberJoint(double g){}
         int colorDetect = 0;
         int yellowDetect = 0;
         int i = 0;
+        COLORTIME.resetTimer();
         boolean sample = false, specimen = false, CONTINUE = false;
         switch (sensor) {
             case "CLAW":
+                if(CurrentArmPos == 2) {
+                    while (!CONTINUE) {
+                        Color.RGBToHSV(
+                                (int) (ClawSense.red() * 255.0 / 1023),
+                                (int) (ClawSense.green() * 255.0 / 1023),
+                                (int) (ClawSense.blue() * 255.0 / 1023),
+                                HSVVALUES
+                        );
+                        hue = HSVVALUES[0];
+                        if (hue < 30 || hue > 330 || (hue > 50 && hue < 85) || (hue > 210 && hue < 270)) {
+                            CONTINUE = true;
+                            closeClaw();
+                        }
 
+                        i++;
+                        if (i > 600) {
+                            closeClaw();
+                            CONTINUE = true;
+                        }
+                    }
+                    armHandler(CurrentArmPos, 3);
+                }
 
                 break;
 
             case "SLURP":
-                zero8.setPower(-1);HSlidePos(0.95);WristPos(0.18);
-
-                while(i < 100) {
+                while(COLORTIME.getElapsedTimeSeconds() < 3) {
                     Color.RGBToHSV(
                             (int) (SlurpSense.red() * 255.0 / 1023),
                             (int) (SlurpSense.green() * 255.0 / 1023),
@@ -632,19 +659,19 @@ public void upperGrabberJoint(double g){}
                     } else if (hue > 50 && hue < 85) {yellowDetect++;}
                     if (hue > 156 && hue < 164) {zero8.setPower(-1);}
 
-                    if (yellowDetect > 40) {
+                    if (yellowDetect > 1) {
                         wrist.setPosition(0.0);
                         wrist2.setPosition(0.0);
                         HSlidePos(0);sample = true;i = 100;
                     }
-                    if (colorDetect > 40) {
+                    else if (colorDetect > 1) {
                         wrist.setPosition(0.0);
                         wrist2.setPosition(0.0);
                         HSlidePos(0);specimen = true;i = 100;
                     }
-                    i++;//OR I will set to 100
                 }
-                while(!CONTINUE){
+                while(!CONTINUE || COLORTIME.getElapsedTimeSeconds() < 4){
+                    zero8.setPower(0);
                     Color.RGBToHSV(
                             (int) (ClawSense.red() * 255.0 / 1023),
                             (int) (ClawSense.green() * 255.0 / 1023),
@@ -656,12 +683,14 @@ public void upperGrabberJoint(double g){}
                         CONTINUE = true;
                         closeClaw();
                     }
-
-                        i++;
-                    if(i>400)return;
+                    closeClaw();
+//                    if(i>600){
+//                        closeClaw();CONTINUE = true;
+//                    }
                 }
                 if(specimen)armHandler(CurrentArmPos, 2);
-                if(sample)armHandler(CurrentArmPos, 1);
+                else if(sample)armHandler(CurrentArmPos, 1);
+                else armHandler(CurrentArmPos, 1);
 
 
 

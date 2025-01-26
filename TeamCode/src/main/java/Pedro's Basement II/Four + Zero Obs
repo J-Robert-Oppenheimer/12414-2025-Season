@@ -173,5 +173,6 @@
                     follower.followPath(spec22Park);
                 }
                 break;
+                setPathState(-1);
         }
     }

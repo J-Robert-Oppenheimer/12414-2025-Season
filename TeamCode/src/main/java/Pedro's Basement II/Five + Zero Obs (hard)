@@ -243,6 +243,7 @@
             case 20:
                 if (!follower.isBusy()){
                     follower.followPath(spec12Park);
+                    setPathState(-1);
                 }
                 break;
         }

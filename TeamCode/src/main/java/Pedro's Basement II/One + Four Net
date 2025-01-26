@@ -124,5 +124,6 @@
                     follower.followPath(net2Park);
                 }
                 break;
+                setPathState(-1);
         }
     }
