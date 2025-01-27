@@ -41,7 +41,7 @@ public class GeneralHardwareMap {
 //    SP stdPos = new SP();
 
     //Define opMode
-
+    PID pid = new PID(0.1,0.00001,0.001);
     public OpMode opMode;
 
 
@@ -65,6 +65,7 @@ public class GeneralHardwareMap {
     public Servo limeServo;
     public Servo zero, zero2, zero3, zero4, zero5;
     public CRServo zero8;
+    public double power;
     public Servo lowJointLeft, lowJointRight, highJointLeft, highJointRight;
     public ColorRangeSensor SlurpSense, ClawSense, INTERCLAW;
 
@@ -610,6 +611,7 @@ public void upperGrabberJoint(double g){}
             }
             //DETERMINE DESIRED POSITION
             bone1.setPower(POWER);bone3.setPower(POWER);
+
             motorPos(SLIDEPOS0);
             smoothJoints(LOW0,LOWF,HIGHF);
             motorPos(SLIDEPOSF);
@@ -722,6 +724,21 @@ public void upperGrabberJoint(double g){}
 
 
 
+    }
+
+    public void applyToMotors( double currentPosition, double maxPower) {
+        double power = pid.calculatePower(currentPosition);
+
+        // Clip the power to prevent exceeding the motor range (-1.0 to 1.0)
+        power = Math.max(-1.0, Math.min(1.0, power));
+        power = Math.min(maxPower, Math.abs(power)) * Math.abs(power) / power;
+
+        // Apply power to both motors
+        bone1.setPower(power);
+        bone3.setPower(power);
+    }
+    public void setPidTarget(double target){
+        pid.setTargetPosition(target);
     }
 
 }

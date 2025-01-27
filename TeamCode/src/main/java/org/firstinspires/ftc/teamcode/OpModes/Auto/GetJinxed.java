@@ -52,20 +52,20 @@ public class GetJinxed extends OpMode {
      * Lets assume the Robot is facing the human player and we want to score in the bucket */
 
     /** Start Pose of our robot */
-    private final Pose startPose = new Pose(7.5, 112, Math.toRadians(270));
+    private final Pose startPose = new Pose(7.5, 113.5, Math.toRadians(270));
 
     /** Scoring Pose of our robot. It is facing the submersible at a -45 degree (315 degree) angle. */
-    private final Pose scorePose = new Pose(16.5, 130.5, Math.toRadians(315));
+    private final Pose scorePose = new Pose(14, 133, Math.toRadians(315));
 //    private final Pose scorePose = new Pose(15, 129, Math.toRadians(315));
 
     /** Lowest (First) Sample from the Spike Mark */
     private final Pose pickup1Pose = new Pose(22, 124, Math.toRadians(0));
 
     /** Middle (Second) Sample from the Spike Mark */
-    private final Pose pickup2Pose = new Pose(22, 133, Math.toRadians(0));
+    private final Pose pickup2Pose = new Pose(22, 133.75, Math.toRadians(0));
 
     /** Highest (Third) Sample from the Spike Mark */
-    private final Pose pickup3Pose = new Pose(27.5, 125, Math.toRadians(50));
+    private final Pose pickup3Pose = new Pose(27, 125, Math.toRadians(50));
 
     /** Park Pose for our robot, after we do all of the scoring. */
     private final Pose parkPose = new Pose(8, 112, Math.toRadians(270));
@@ -152,17 +152,23 @@ public class GetJinxed extends OpMode {
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 0:
+                if(ArmPos != 1) {
+                    gHMap.armHandler(ArmPos, 1);
+                    ArmPos = 1;
+                }
                 follower.followPath(scorePreload);
                 setPathState(1);
                 break;
 
             case 1:
-                if(ArmPos != 1) {
-                    gHMap.armHandler(ArmPos, 1);
-                    ArmPos = 1;
+//                if(ArmPos != 1) {
+//                    gHMap.armHandler(ArmPos, 1);
+//                    ArmPos = 1;
+//                }
+                if(pathTimer.getElapsedTimeSeconds() > 1) {gHMap.openClaw();
+//                    gHMap.HSlidePos(0.5);
                 }
-                if(pathTimer.getElapsedTimeSeconds() > 3) {gHMap.openClaw();gHMap.autoExtendHalf();}
-                if(pathTimer.getElapsedTimeSeconds() > 3.5) {setPathState(2);gHMap.armHandler(ArmPos, 0);
+                if(pathTimer.getElapsedTimeSeconds() > 2) {setPathState(2);gHMap.armHandler(ArmPos, 0);
                     ArmPos = 0;
                     }//HERE
                 break;
@@ -190,9 +196,11 @@ public class GetJinxed extends OpMode {
 
                 break;
             case 3:
+//                if (pathTimer.getElapsedTimeSeconds() < 2.5) {
+//                    gHMap.autoExtend();}
                 if(!follower.isBusy()) {
-                    if (pathTimer.getElapsedTimeSeconds() > 1.5 && pathTimer.getElapsedTimeSeconds() < 2.5) {
-                    gHMap.autoExtend();}
+                    if (pathTimer.getElapsedTimeSeconds() < 2) {
+                        gHMap.autoExtend();}
                     if (pathTimer.getElapsedTimeSeconds() > 2.5) {
                         gHMap.WristPos(0);
                         gHMap.HSlidePos(0);
@@ -320,9 +328,9 @@ public class GetJinxed extends OpMode {
                 }
                 break;
             case 13:
-                if(pathTimer.getElapsedTimeSeconds() > 0.75) {
+                if(pathTimer.getElapsedTimeSeconds() > 1.25) {
                     gHMap.openClaw();}
-                    if (pathTimer.getElapsedTimeSeconds() > 1.25){
+                    if (pathTimer.getElapsedTimeSeconds() > 1.5){
 //                        gHMap.armHandler(ArmPos, 0);
                         gHMap.bone1.setPower(0.5);
                         gHMap.bone3.setPower(0.5);
