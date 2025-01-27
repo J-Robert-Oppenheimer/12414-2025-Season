@@ -40,6 +40,7 @@
 
         net2Park = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(SP.NetDiagonal), new Point(83, 23), new Point(SP.NetPark)))
+                .setLinearHeadingInterpolation(SP.NetDiagonal.getHeading(), SP.NetPark.getHeading())
                 .build();
 
     }

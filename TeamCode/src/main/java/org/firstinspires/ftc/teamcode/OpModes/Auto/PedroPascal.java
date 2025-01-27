@@ -38,50 +38,17 @@ public class PedroPascal extends OpMode {
     private int pathState;
     private double LowJointPos;
     private double HighJointPos;
+    public int ArmPos = 1;
 
 
-    private PathChain start2Spec, spec2Sub, sub2Net, net2Mid, mid2Net, net2Wall, wall2Net, net2Park;
+    private PathChain start2Park;
 
     public void buildPaths() {
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
-        start2Spec = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(SP.NetZoneStart), new Point(SP.NetSpecimen)))
-                .setLinearHeadingInterpolation(SP.NetZoneStart.getHeading(), SP.NetSpecimen.getHeading())
-                .build();
-
-        spec2Sub = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(SP.NetSpecimen), new Point(SP.SampleIntakeNetSub)))
-                .setLinearHeadingInterpolation(SP.NetSpecimen.getHeading(), SP.SampleIntakeNetSub.getHeading())
-                .build();
-
-        sub2Net = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(SP.SampleIntakeNetSub), new Point(SP.NetDiagonal)))
-                .setLinearHeadingInterpolation(SP.SampleIntakeNetSub.getHeading(), SP.NetDiagonal.getHeading())
-                .build();
-
-        net2Mid = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(SP.NetDiagonal), new Point(SP.SampleIntakeNetMid)))
-                .setLinearHeadingInterpolation(SP.NetDiagonal.getHeading(), SP.SampleIntakeNetMid.getHeading())
-                .build();
-
-        mid2Net = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(SP.SampleIntakeNetMid), new Point(SP.NetDiagonal)))
-                .setLinearHeadingInterpolation(SP.SampleIntakeNetMid.getHeading(), SP.NetDiagonal.getHeading())
-                .build();
-
-        net2Wall = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(SP.NetDiagonal), new Point(SP.SampleIntakeNetWall)))
-                .setLinearHeadingInterpolation(SP.NetDiagonal.getHeading(), SP.SampleIntakeNetWall.getHeading())
-                .build();
-
-        wall2Net = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(SP.SampleIntakeNetWall), new Point(SP.NetDiagonal)))
-                .setLinearHeadingInterpolation(SP.SampleIntakeNetWall.getHeading(), SP.NetDiagonal.getHeading())
-                .build();
-
-        net2Park = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(SP.NetDiagonal), new Point(83, 23), new Point(SP.NetPark)))
+        start2Park = follower.pathBuilder()
+                .addPath(new BezierCurve(new Point(SP.ObsZoneStart), new Point(78, 139), new Point(SP.ObsPark)))
+                .setLinearHeadingInterpolation(SP.ObsZoneStart.getHeading(), SP.ObsPark.getHeading())
                 .build();
 
     }
@@ -90,83 +57,44 @@ public class PedroPascal extends OpMode {
         switch (pathState) {
             case 0: // Move from start to scoring position
                 if (!follower.isBusy()) {
-                    follower.followPath(start2Spec);
-                    setPathState(1);
-                }
-                break;
-
-            case 1:
-                if (!follower.isBusy()){
-                    follower.followPath(spec2Sub);
-                    setPathState(2);
-                }
-                break;
-
-            case 2:
-                if (!follower.isBusy()){
-                    follower.followPath(sub2Net);
-                    setPathState(3);
-                }
-                break;
-
-            case 3:
-                if (!follower.isBusy()){
-                    follower.followPath(net2Mid);
-                    setPathState(4);
-                }
-                break;
-
-            case 4:
-                if (!follower.isBusy()){
-                    follower.followPath(mid2Net);
-                    setPathState(5);
-                }
-                break;
-
-            case 5:
-                if (!follower.isBusy()){
-                    follower.followPath(net2Wall);
-                    setPathState(6);
-                }
-                break;
-
-            case 6:
-                if (!follower.isBusy()){
-                    follower.followPath(wall2Net);
-                    setPathState(7);
-                }
-                break;
-
-            case 7:
-                if (!follower.isBusy()){
-                    follower.followPath(net2Park);
-
-                    setPathState(-1);
+                    follower.followPath(start2Park);
                 }
                 break;
         }
     }
 
-    public void setPathState(int pState) {
-        pathState = pState;
-        pathTimer.resetTimer();
-    }
+        public void setPathState (int pState){
+            pathState = pState;
+            pathTimer.resetTimer();
+        }
 
-    @Override
-    public void init() {
-//        gHMap.init("Kineses");
+
+        @Override
+        public void init () {
+
+            pathTimer = new Timer();
+            opmodeTimer = new Timer();
+            opmodeTimer.resetTimer();
+            gHMap.init("Autonomous");
+            gHMap.armHandler(ArmPos, 0);
+            ArmPos = 0;
+            while (opmodeTimer.getElapsedTimeSeconds() < 5) {
+                if (opmodeTimer.getElapsedTimeSeconds() > 4) {
+                    gHMap.closeClaw();
+                }
+            }
+
+
+            //        gHMap.init("Kineses");
 //        gHMap.smoothJoints(0,0.28,0.30);
-        LowJointPos = 0.28;
 
-        pathTimer = new Timer();
-        opmodeTimer = new Timer();
-        opmodeTimer.resetTimer();
 
-        Constants.setConstants(FConstants.class, LConstants.class);
-        follower = new Follower(hardwareMap);
-        follower.setStartingPose(SP.ObsZoneStart);
-        buildPaths();
-    }
+            Constants.setConstants(FConstants.class, LConstants.class);
+            follower = new Follower(hardwareMap);
+            follower.setStartingPose(SP.NetZoneStart);
+            buildPaths();
+        }
+
 
 //    @Override
 //    public String name() {

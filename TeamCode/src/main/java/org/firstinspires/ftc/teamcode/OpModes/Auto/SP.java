@@ -42,76 +42,76 @@ public class SP {
         return new Vector(orig.getXComponent() - (netPlacementRange * Math.cos(Math.toRadians(theta))), orig.getYComponent() - (netPlacementRange * Math.sin(Math.toRadians(theta))));
     }
 
-    public static final Pose ObsZoneStart = new Pose(144 - lengthOffset, 96 - widthOffset, Math.toRadians(0));  // Obs start
+    public static final Pose ObsZoneStart = new Pose(144 - lengthOffset, 96 - widthOffset, Math.toRadians(180));  // Obs start
 
-    public static final Pose NetZoneStart = new Pose(144 - widthOffset, 48 + lengthOffset, Math.toRadians(270)); // Net start
-
-
-    public static final Pose Specimen0 = new Pose(96 + lengthOffset, 76.5 + placementRange, Math.toRadians(270));
-
-    public static final Pose Specimen1 = new Pose(96 + lengthOffset, 78 + placementRange, Math.toRadians(270)); // Specimen1
-
-    public static final Pose Specimen2 = new Pose(96 + lengthOffset, 79.5 + placementRange, Math.toRadians(270)); // Specimen2
-
-    public static final Pose Specimen3 = new Pose(96 + lengthOffset, 81 + placementRange, Math.toRadians(270)); // Specimen3
-
-    public static final Pose Specimen4 = new Pose(96 + lengthOffset, 82.5 + placementRange, Math.toRadians(270)); // Specimen4
-
-    public static final Pose Specimen5 = new Pose(96 + lengthOffset, 63, Math.toRadians(0)); // Specimen5
-
-    public static final Pose NetSpecimen = new Pose(96, 82.5 + placementRange, Math.toRadians(270)); // Net Specimen
+    public static final Pose NetZoneStart = new Pose(144 - widthOffset, 48 + lengthOffset, Math.toRadians(180)); // Net start
 
 
-    public static final Pose NetDiagonal = new Pose(72 - netPlacementRangex(45), 72 - netPlacementRangey(45), Math.toRadians(225)); // Net Diagonal
+    public static final Pose Specimen0 = new Pose(96 + lengthOffset, 76.5 + placementRange, Math.toRadians(180));
 
-    public static final Pose Net = new Pose(55, 66, Math.toRadians(225)); // Net
+    public static final Pose Specimen1 = new Pose(96 + lengthOffset, 78 + placementRange, Math.toRadians(180)); // Specimen1
 
+    public static final Pose Specimen2 = new Pose(96 + lengthOffset, 79.5 + placementRange, Math.toRadians(180)); // Specimen2
 
-    public static final Pose SpikeWallObs = new Pose(-70, 25, Math.toRadians(270)); // Obs Wall
+    public static final Pose Specimen3 = new Pose(96 + lengthOffset, 81 + placementRange, Math.toRadians(180)); // Specimen3
 
-    public static final Pose SpikeMidObs = new Pose(-60, 25, Math.toRadians(270)); // Obs Mid
+    public static final Pose Specimen4 = new Pose(96 + lengthOffset, 82.5 + placementRange, Math.toRadians(180)); // Specimen4
 
-    public static final Pose SpikeSubObs = new Pose(-50, 25, Math.toRadians(270)); // Obs Sub
+    public static final Pose Specimen5 = new Pose(96 + lengthOffset, 63, Math.toRadians(180)); // Specimen5
 
-
-    public static final Pose  SpikeWallNet = new Pose(70, 25, Math.toRadians(270)); // Net Wall
-
-    public static final Pose SpikeMidNet = new Pose(60, 25, Math.toRadians(270)); // Net Mid
-
-    public static final Pose SpikeSubNet = new Pose(50, 25, Math.toRadians(270)); // Net Sub
+    public static final Pose NetSpecimen = new Pose(96, 82.5 + placementRange, Math.toRadians(180)); // Net Specimen
 
 
-    public static final Pose SampleIntakeObsSub = new Pose(-50, 25 + intakeRange, Math.toRadians(270)); // Obs Sub Intake
+    public static final Pose NetDiagonal = new Pose(72 - netPlacementRangex(-45), 0 + netPlacementRangey(-45), Math.toRadians(-45)); // Net Diagonal
 
-    public static final Pose SampleIntakeObsMid = new Pose(-60, 25 + intakeRange, Math.toRadians(270)); // Obs Mid Intake
-
-    public static final Pose SampleIntakeObsWall = new Pose(IntakeRangex(240) - 70, IntakeRangey(240) + 25, Math.toRadians(240)); // Obs Wall Intake
-
-    public static final Pose SampleIntakeNetSub = new Pose(50, 25 + intakeRange, Math.toRadians(270)); // Net Sub Intake
-
-    public static final Pose SampleIntakeNetMid = new Pose(60, 25 + intakeRange, Math.toRadians(270)); // Net Mid Intake
-
-    public static final Pose SampleIntakeNetWall = new Pose(70 - IntakeRangex(300), 25 - IntakeRangey(300), Math.toRadians(300)); // Net Wall Intake
+    public static final Pose Net = new Pose(72, 0, Math.toRadians(-45)); // Net
 
 
-    public static final Pose SampleDropSub = new Pose(-50, 72 - placementRange, Math.toRadians(270)); // Sub Drop
+    public static final Pose SpikeWallObs = new Pose(98, 142, Math.toRadians(180)); // Obs Wall
 
-    public static final Pose SampleDropMid = new Pose(-60, 72 - placementRange, Math.toRadians(270)); // Mid Drop
+    public static final Pose SpikeMidObs = new Pose(98, 132, Math.toRadians(180)); // Obs Mid
 
-    public static final Pose SampleDropWall = new Pose(-70, 72 - placementRange, Math.toRadians(270)); // Wall Drop
+    public static final Pose SpikeSubObs = new Pose(98, 121, Math.toRadians(180)); // Obs Sub
 
 
-    public static final Pose SamplePickupNet = new Pose(24, -2 - widthOffset, Math.toRadians(180)); // Net Pickup
+    public static final Pose  SpikeWallNet = new Pose(98, 2, Math.toRadians(180)); // Net Wall
 
-    public static final Pose SamplePickupObs = new Pose(-24, 2 + widthOffset, Math.toRadians(0)); // Obs Pickup
+    public static final Pose SpikeMidNet = new Pose(98, 12, Math.toRadians(180)); // Net Mid
 
-    public static final Pose ObsZone = new Pose(-55, 66 - widthOffset, Math.toRadians(270)); // Obs Zone
+    public static final Pose SpikeSubNet = new Pose(98, 23, Math.toRadians(180)); // Net Sub
 
-    public static final Pose ObsZoneIntake = new Pose(-55, 66 - intakeRange, Math.toRadians(270)); // Obs Intake
 
-    public static final Pose ObsPark = new Pose(85, 98, Math.toRadians(90));
+    public static final Pose SampleIntakeObsSub = new Pose(98 + intakeRange, 121, Math.toRadians(180)); // Obs Sub Intake
 
-    public static final Pose NetPark = new Pose(85, 46, Math.toRadians(-90));
+    public static final Pose SampleIntakeObsMid = new Pose(98 + intakeRange, 132, Math.toRadians(180)); // Obs Mid Intake
+
+    public static final Pose SampleIntakeObsWall = new Pose(IntakeRangex(135) + 98, 142 - IntakeRangey(240), Math.toRadians(135)); // Obs Wall Intake
+
+    public static final Pose SampleIntakeNetSub = new Pose(98 + intakeRange, 23, Math.toRadians(180)); // Net Sub Intake
+
+    public static final Pose SampleIntakeNetMid = new Pose(98 + intakeRange, 12, Math.toRadians(180)); // Net Mid Intake
+
+    public static final Pose SampleIntakeNetWall = new Pose(98 + IntakeRangex(-135), 2 + IntakeRangey(-135), Math.toRadians(-135)); // Net Wall Intake
+
+
+    public static final Pose SampleDropSub = new Pose(138, 121 - placementRange, Math.toRadians(180)); // Sub Drop
+
+    public static final Pose SampleDropMid = new Pose(138, 132 - placementRange, Math.toRadians(180)); // Mid Drop
+
+    public static final Pose SampleDropWall = new Pose(138, 132 - placementRange, Math.toRadians(180)); // Wall Drop
+
+
+    public static final Pose SamplePickupNet = new Pose(84, 47 - intakeRange, Math.toRadians(90)); // Net Pickup
+
+    public static final Pose SamplePickupObs = new Pose(84, 97 + intakeRange, Math.toRadians(-90)); // Obs Pickup
+
+    public static final Pose ObsZone = new Pose(138 - placementRange, 132, Math.toRadians(180)); // Obs Zone
+
+    public static final Pose ObsZoneIntake = new Pose(144 - intakeRange, 120, Math.toRadians(180)); // Obs Intake
+
+    public static final Pose ObsPark = new Pose(85, 98, Math.toRadians(-90));
+
+    public static final Pose NetPark = new Pose(85, 46, Math.toRadians(90));
 
 
 //
