@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.OpModes;
 
-import android.graphics.Color;
-
 import static com.pedropathing.follower.FollowerConstants.leftFrontMotorDirection;
 import static com.pedropathing.follower.FollowerConstants.leftFrontMotorName;
 import static com.pedropathing.follower.FollowerConstants.leftRearMotorDirection;
@@ -11,9 +9,9 @@ import static com.pedropathing.follower.FollowerConstants.rightFrontMotorName;
 import static com.pedropathing.follower.FollowerConstants.rightRearMotorDirection;
 import static com.pedropathing.follower.FollowerConstants.rightRearMotorName;
 
-import com.acmerobotics.dashboard.FtcDashboard;
+import android.graphics.Color;
+
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.localization.PoseUpdater;
 import com.pedropathing.util.Constants;
 import com.pedropathing.util.DashboardPoseTracker;
@@ -43,8 +41,8 @@ import pedroPathing.constants.LConstants;
  * @version 1.0, 5/6/2024
  */
 @Config
-@TeleOp( name = "Kinesis 2.2.Blue")
-public class Kinesis2_1_Sigma extends OpMode {
+@TeleOp( name = "Kinesis 2.2.Red")
+public class Kinesis2_2_Red extends OpMode {
     private PoseUpdater poseUpdater;
     private DashboardPoseTracker dashboardPoseTracker;
     private Telemetry telemetryA;
@@ -502,9 +500,9 @@ public class Kinesis2_1_Sigma extends OpMode {
                 telemetry.addData("Color", "Unknown");
             }
 
-            if (gHMap.ClawSense.getDistance(DistanceUnit.INCH) < 2 && hue > 210 && hue < 270) {
+            if (gHMap.ClawSense.getDistance(DistanceUnit.INCH) < 2.7 && (hue < 30 || hue > 330)) {
                 toggle = true;
-            } else if (gHMap.ClawSense.getDistance(DistanceUnit.INCH) < 2 && hue > 50 && hue < 80) {
+            } else if (gHMap.ClawSense.getDistance(DistanceUnit.INCH) < 2.7 && hue > 50 && hue < 80) {
                 toggle = true;
             }
 
@@ -536,9 +534,9 @@ public class Kinesis2_1_Sigma extends OpMode {
 //
 
             if (hue2 < 30 || hue2 > 330) {//RED
-                gHMap.zero8.setPower(1);
-            } else if (hue2 > 210 && hue2 < 270) {//
                 airFryer++;
+            } else if (hue2 > 210 && hue2 < 270) {//
+                gHMap.zero8.setPower(1);
             } else if (hue2 > 50 && hue2 < 85) {
                 airFryer++;
             }
@@ -546,7 +544,7 @@ public class Kinesis2_1_Sigma extends OpMode {
                 gHMap.zero8.setPower(-1);
             }
 
-            if(airFryer > 8){
+            if(airFryer > 2){
                 gHMap.wrist.setPosition(0.0);
                 gHMap.wrist2.setPosition(0.0);
                 airFryer = 0;
@@ -564,12 +562,7 @@ public class Kinesis2_1_Sigma extends OpMode {
 
 
         }
-        if(gamepad1.start && gamepad1.back){
-            gHMap.bone1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            gHMap.bone3.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            gHMap.bone1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            gHMap.bone3.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        }
+
 
         if(armPosition == 2) { //Wall SPecimen
 
@@ -608,7 +601,7 @@ public class Kinesis2_1_Sigma extends OpMode {
             }
             clawDist = gHMap.ClawSense.getDistance(DistanceUnit.INCH);
 
-            if (clawDist < 2 && hue > 210 && hue < 270 && clawDist > 0.5) {
+            if (clawDist < 2 && (hue < 30 || hue > 330) && clawDist > 0.5) {
                 toggle = true;
                 Singapore_Im_Senatorian++;
                 if(Singapore_Im_Senatorian > 7)slidePos = -120;
@@ -645,10 +638,10 @@ public class Kinesis2_1_Sigma extends OpMode {
         //DEBUG CONTROL
         if(gamepad2.ps){
             if(gamepad2.left_bumper){//HSlide in
-                HslidePos-= 0.02;
+                HslidePos+= 0.02;
             }
             if(gamepad2.right_bumper){//HSlide out
-                HslidePos+= 0.02;
+                HslidePos-= 0.02;
             }
 
 
@@ -691,14 +684,28 @@ public class Kinesis2_1_Sigma extends OpMode {
             gHMap.bone1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             gHMap.bone3.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         }
+        if(gamepad1.start && gamepad1.back){
+            gHMap.bone1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            gHMap.bone3.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            gHMap.bone1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            gHMap.bone3.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        }
+//        if(triangle2){
+//            if(poseUpdater.getPose().getX() < 28 && poseUpdater.getPose().getY() > 125){
+//                gamepad2.rumble(1000);
+//            }
+//            else{
+//                gamepad2.setLedColor(255,0,0,10000);
+//            }
+//
+//        }
+
         if(triangle2){
-                gamepad2.setLedColor(0,255,0,10000);
-            }
-            else{
-                gamepad2.setLedColor(255,0,0,10000);
-            }
-
-
+            gamepad2.setLedColor(0,255,0,10000);
+        }
+        else{
+            gamepad2.setLedColor(255,0,0,10000);
+        }
 
 
 
@@ -727,14 +734,14 @@ public class Kinesis2_1_Sigma extends OpMode {
         telemetry.addData("Bone1", gHMap.bone1.getCurrentPosition());
         telemetry.addData("Bone2", gHMap.bone2.getCurrentPosition());
         telemetry.addData("Bone3", gHMap.bone3.getCurrentPosition());
-//        telemetry.addData("ElapsedTime", (double)elapsedTime/1000);
+////        telemetry.addData("ElapsedTime", (double)elapsedTime/1000);
 //        telemetry.addData("SlideTime", slideStartTime);
 //        telemetry.addData("TIME", currentTime);
 ////                telemetry.addData("armStartTime", armStartTime);
 //        telemetry.addData("armTime", armTime);
 //        telemetry.addData("interm Joint", intermJoint);
 //        telemetry.addData("iterator", i);
-//        telemetry.addData("Processing Speed", i/((double)elapsedTime/1000));
+////        telemetry.addData("Processing Speed", i/((double)elapsedTime/1000));
 //        telemetry.addData("GAME COLOR", col);
 
         telemetry.update();

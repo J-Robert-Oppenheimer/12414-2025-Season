@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.OpModes;
 
-import android.graphics.Color;
-
 import static com.pedropathing.follower.FollowerConstants.leftFrontMotorDirection;
 import static com.pedropathing.follower.FollowerConstants.leftFrontMotorName;
 import static com.pedropathing.follower.FollowerConstants.leftRearMotorDirection;
@@ -11,9 +9,9 @@ import static com.pedropathing.follower.FollowerConstants.rightFrontMotorName;
 import static com.pedropathing.follower.FollowerConstants.rightRearMotorDirection;
 import static com.pedropathing.follower.FollowerConstants.rightRearMotorName;
 
-import com.acmerobotics.dashboard.FtcDashboard;
+import android.graphics.Color;
+
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.localization.PoseUpdater;
 import com.pedropathing.util.Constants;
 import com.pedropathing.util.DashboardPoseTracker;
@@ -43,8 +41,8 @@ import pedroPathing.constants.LConstants;
  * @version 1.0, 5/6/2024
  */
 @Config
-@TeleOp( name = "Kinesis 2.2.Blue")
-public class Kinesis2_1_Sigma extends OpMode {
+@TeleOp( name = "Kinesis 2.3.Blue")
+public class Kinesis2_3_EMT extends OpMode {
     private PoseUpdater poseUpdater;
     private DashboardPoseTracker dashboardPoseTracker;
     private Telemetry telemetryA;
@@ -128,7 +126,8 @@ public class Kinesis2_1_Sigma extends OpMode {
         armPosition = 0;
         armPositionH = 0.34;
         armPositionL = 0.41;
-
+        gHMap.bone1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        gHMap.bone3.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         Constants.setConstants(FConstants.class, LConstants.class);
         poseUpdater = new PoseUpdater(hardwareMap);
 
@@ -233,29 +232,33 @@ public class Kinesis2_1_Sigma extends OpMode {
             slidePos = -330;
         }
 
-        if (slidePos < 400 && gamepad1.left_trigger > 0.5) {
+        if (slidePos < 0 && gamepad1.left_trigger > 0.5) {
             slidePos += 5;
         }
 
 
 //        power = (!vSlideLowering)?0:1;
+//        else if(Math.abs(slidePos) < 2 && Math.abs(gHMap.bone1.getCurrentPosition()) < 3)power = 0;
+
+
         if(slidePos > lastSlidePos)vSlideLowering = true;
         if(vSlideLowering)power = 0.4;
-        else if(Math.abs(slidePos) < 2 && Math.abs(gHMap.bone1.getCurrentPosition()) < 3)power = 0;
         else power = 1;
         if(!vSlideLowering)lastSlidePos = slidePos;
         if(Math.abs(slidePos- gHMap.bone1.getCurrentPosition()) < 4)vSlideLowering =false;
 
 //        power = (Math.abs(slidePos) < 3 && Math.abs(gHMap.bone1.getCurrentPosition()) < 3?0:1);
+        gHMap.setPidTarget(slidePos);
+        gHMap.applyToMotors(gHMap.bone1.getCurrentPosition(),power);
+//        gHMap.bone1.setPower(power);
+////        gHMap.bone2.setPower(power);
+//        gHMap.bone3.setPower(power);
 
-        gHMap.bone1.setPower(power);
-//        gHMap.bone2.setPower(power);
-        gHMap.bone3.setPower(power);
 
 
-        gHMap.bone1.setTargetPosition(slidePos);
-//        gHMap.bone2.setTargetPosition(slidePos);
-        gHMap.bone3.setTargetPosition(slidePos);
+//        gHMap.bone1.setTargetPosition(slidePos);
+////        gHMap.bone2.setTargetPosition(slidePos);
+//        gHMap.bone3.setTargetPosition(slidePos);
 
         //------------------- HORIZONTAL SLIDES --------------------------
         if (gamepad1.right_bumper && HslidePos < 1.0) {
@@ -564,12 +567,7 @@ public class Kinesis2_1_Sigma extends OpMode {
 
 
         }
-        if(gamepad1.start && gamepad1.back){
-            gHMap.bone1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            gHMap.bone3.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            gHMap.bone1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            gHMap.bone3.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        }
+
 
         if(armPosition == 2) { //Wall SPecimen
 
@@ -688,8 +686,8 @@ public class Kinesis2_1_Sigma extends OpMode {
         if(gamepad2.start && gamepad2.back){
             gHMap.bone1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             gHMap.bone3.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            gHMap.bone1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            gHMap.bone3.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            gHMap.bone1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            gHMap.bone3.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
         if(triangle2){
                 gamepad2.setLedColor(0,255,0,10000);

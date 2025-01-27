@@ -52,19 +52,20 @@ public class GetJinxed extends OpMode {
      * Lets assume the Robot is facing the human player and we want to score in the bucket */
 
     /** Start Pose of our robot */
-    private final Pose startPose = new Pose(7.5, 112, Math.toRadians(270));
+    private final Pose startPose = new Pose(7.5, 113.5, Math.toRadians(270));
 
     /** Scoring Pose of our robot. It is facing the submersible at a -45 degree (315 degree) angle. */
-    private final Pose scorePose = new Pose(14, 129, Math.toRadians(315));
+    private final Pose scorePose = new Pose(14, 133, Math.toRadians(315));
+//    private final Pose scorePose = new Pose(15, 129, Math.toRadians(315));
 
     /** Lowest (First) Sample from the Spike Mark */
-    private final Pose pickup1Pose = new Pose(20, 124, Math.toRadians(0));
+    private final Pose pickup1Pose = new Pose(22, 124, Math.toRadians(0));
 
     /** Middle (Second) Sample from the Spike Mark */
-    private final Pose pickup2Pose = new Pose(20, 134, Math.toRadians(0));
+    private final Pose pickup2Pose = new Pose(22, 133.75, Math.toRadians(0));
 
     /** Highest (Third) Sample from the Spike Mark */
-    private final Pose pickup3Pose = new Pose(25, 130, Math.toRadians(30));
+    private final Pose pickup3Pose = new Pose(27, 125, Math.toRadians(50));
 
     /** Park Pose for our robot, after we do all of the scoring. */
     private final Pose parkPose = new Pose(8, 112, Math.toRadians(270));
@@ -151,20 +152,25 @@ public class GetJinxed extends OpMode {
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 0:
-
+                if(ArmPos != 1) {
+                    gHMap.armHandler(ArmPos, 1);
+                    ArmPos = 1;
+                }
                 follower.followPath(scorePreload);
                 setPathState(1);
-
                 break;
 
             case 1:
-                gHMap.armHandler(ArmPos, 1);
-                ArmPos = 1;
-                if(pathTimer.getElapsedTimeSeconds() > 5) {gHMap.openClaw();gHMap.autoExtendHalf();}
-                if(pathTimer.getElapsedTimeSeconds() > 5) {gHMap.armHandler(ArmPos, 0);
-                    ArmPos = 0;}
-                if(pathTimer.getElapsedTimeSeconds() > 7) {setPathState(2);}
-
+//                if(ArmPos != 1) {
+//                    gHMap.armHandler(ArmPos, 1);
+//                    ArmPos = 1;
+//                }
+                if(pathTimer.getElapsedTimeSeconds() > 1) {gHMap.openClaw();
+//                    gHMap.HSlidePos(0.5);
+                }
+                if(pathTimer.getElapsedTimeSeconds() > 2) {setPathState(2);gHMap.armHandler(ArmPos, 0);
+                    ArmPos = 0;
+                    }//HERE
                 break;
             case 2:
 
@@ -175,23 +181,40 @@ public class GetJinxed extends OpMode {
                 */
 
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
-                gHMap.openClaw();
+
                 if(!follower.isBusy()) {
+                    follower.followPath(grabPickup1,true);
                     /* Score Preload */
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are grabbing the sample */
 //                    gHMap.smoothJoints(LowJointPos,0.41,0.34);
 //                    LowJointPos = 0.41;
-                    follower.followPath(grabPickup1,true);
+
+                    setPathState(3);
                 }
-                setPathState(3);
+
 
                 break;
             case 3:
-                if(pathTimer.getElapsedTimeSeconds() > 1) {gHMap.autoExtend();}
-                if(pathTimer.getElapsedTimeSeconds() > 3) {gHMap.autoColorBehavior(ArmPos, true,"SLURP");}
-                ArmPos =1;
-                if(pathTimer.getElapsedTimeSeconds() > 7) {setPathState(4);}
+//                if (pathTimer.getElapsedTimeSeconds() < 2.5) {
+//                    gHMap.autoExtend();}
+                if(!follower.isBusy()) {
+                    if (pathTimer.getElapsedTimeSeconds() < 2) {
+                        gHMap.autoExtend();}
+                    if (pathTimer.getElapsedTimeSeconds() > 2.5) {
+                        gHMap.WristPos(0);
+                        gHMap.HSlidePos(0);
+                    }
+                    if (pathTimer.getElapsedTimeSeconds() > 3.5) {
+                        gHMap.closeClaw();
+                    }
+//                if(pathTimer.getElapsedTimeSeconds() > 3) {gHMap.autoColorBehavior(ArmPos, true,"SLURP", telemetry);}
+                    if (pathTimer.getElapsedTimeSeconds() > 4 && ArmPos != 1) {
+                        gHMap.armHandler(ArmPos, 1);
+                        ArmPos = 1;
+                        setPathState(4);
+                    }
+                }
                 break;
             case 4:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup1Pose's position */
@@ -200,14 +223,19 @@ public class GetJinxed extends OpMode {
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
                     follower.followPath(scorePickup1,true);
+                    setPathState(5);
                 }
-                setPathState(5);
+
                 break;
             case 5:
-                gHMap.openClaw();
-                gHMap.armHandler(ArmPos, 0);
-                ArmPos = 0;
-                if(pathTimer.getElapsedTimeSeconds() > 1) {setPathState(6);}
+                if(pathTimer.getElapsedTimeSeconds() > 1) {
+                    gHMap.openClaw();}
+
+                    if (pathTimer.getElapsedTimeSeconds() > 1.5){
+                    gHMap.armHandler(1, 0);
+                    ArmPos = 0;
+                    setPathState(6);}
+
                 break;
             case 6:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
@@ -216,7 +244,27 @@ public class GetJinxed extends OpMode {
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are grabbing the sample */
                     follower.followPath(grabPickup2,true);
-                    setPathState(8);
+                    setPathState(7);
+                }
+                break;
+
+            case 7:
+                if(!follower.isBusy()) {
+                    if (pathTimer.getElapsedTimeSeconds() < 2) {
+                        gHMap.autoExtend();}
+                    if (pathTimer.getElapsedTimeSeconds() > 3) {
+                        gHMap.WristPos(0);
+                        gHMap.HSlidePos(0);
+                    }
+                    if (pathTimer.getElapsedTimeSeconds() > 4) {
+                        gHMap.closeClaw();
+                    }
+//                if(pathTimer.getElapsedTimeSeconds() > 3) {gHMap.autoColorBehavior(ArmPos, true,"SLURP", telemetry);}
+                    if (pathTimer.getElapsedTimeSeconds() > 4.5 && ArmPos != 1) {
+                        gHMap.armHandler(ArmPos, 1);
+                        ArmPos = 1;
+                        setPathState(8);
+                    }
                 }
                 break;
             case 8:
@@ -226,8 +274,19 @@ public class GetJinxed extends OpMode {
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
                     follower.followPath(scorePickup2,true);
-                    setPathState(10);
+                    setPathState(9);
                 }
+                break;
+            case 9:
+                if(pathTimer.getElapsedTimeSeconds() > 0.5) {
+                    gHMap.openClaw();}
+                    if (pathTimer.getElapsedTimeSeconds() > 1){
+                        gHMap.armHandler(ArmPos, 0);
+                    ArmPos = 0;}
+                    if (pathTimer.getElapsedTimeSeconds() > 1.5) {
+                        setPathState(10);
+                    }
+
                 break;
             case 10:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
@@ -236,7 +295,26 @@ public class GetJinxed extends OpMode {
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are grabbing the sample */
                     follower.followPath(grabPickup3,true);
-                    setPathState(12);
+                    setPathState(11);
+                }
+                break;
+            case 11:
+                if(!follower.isBusy()) {
+                    if (pathTimer.getElapsedTimeSeconds() < 2) {
+                        gHMap.autoExtend();}
+                    if (pathTimer.getElapsedTimeSeconds() > 3) {
+                        gHMap.WristPos(0);
+                        gHMap.HSlidePos(0);
+                    }
+                    if (pathTimer.getElapsedTimeSeconds() > 4) {
+                        gHMap.closeClaw();
+                    }
+//                if(pathTimer.getElapsedTimeSeconds() > 3) {gHMap.autoColorBehavior(ArmPos, true,"SLURP", telemetry);}
+                    if (pathTimer.getElapsedTimeSeconds() > 4.5 && ArmPos != 1) {
+                        gHMap.armHandler(ArmPos, 1);
+                        ArmPos = 1;
+                        setPathState(12);
+                    }
                 }
                 break;
             case 12:
@@ -246,9 +324,25 @@ public class GetJinxed extends OpMode {
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
                     follower.followPath(scorePickup3, true);
-                    setPathState(14);
+                    setPathState(13);
                 }
                 break;
+            case 13:
+                if(pathTimer.getElapsedTimeSeconds() > 1.25) {
+                    gHMap.openClaw();}
+                    if (pathTimer.getElapsedTimeSeconds() > 1.5){
+//                        gHMap.armHandler(ArmPos, 0);
+                        gHMap.bone1.setPower(0.5);
+                        gHMap.bone3.setPower(0.5);
+                        gHMap.motorPos(0);
+                    }
+                    ArmPos = 0;
+                    if (pathTimer.getElapsedTimeSeconds() > 2) {
+                        setPathState(-1);
+                    }
+
+                break;
+
             case 14:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
                 if(!follower.isBusy()) {

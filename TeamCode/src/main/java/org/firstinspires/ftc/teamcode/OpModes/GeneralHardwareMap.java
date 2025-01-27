@@ -41,7 +41,7 @@ public class GeneralHardwareMap {
 //    SP stdPos = new SP();
 
     //Define opMode
-
+    PID pid = new PID(0.1,0.00001,0.001);
     public OpMode opMode;
 
 
@@ -65,6 +65,7 @@ public class GeneralHardwareMap {
     public Servo limeServo;
     public Servo zero, zero2, zero3, zero4, zero5;
     public CRServo zero8;
+    public double power;
     public Servo lowJointLeft, lowJointRight, highJointLeft, highJointRight;
     public ColorRangeSensor SlurpSense, ClawSense, INTERCLAW;
 
@@ -80,6 +81,8 @@ public class GeneralHardwareMap {
     public double LOW0;
     public double LOWF;
     public double HIGHF;
+    public int colorDetect = 0;
+    public int yellowDetect = 0;
     public boolean CLAWBEHAVIOR;
     public double yMovement;
     public double xMovement;
@@ -400,18 +403,30 @@ public void upperGrabberJoint(double g){}
             bone3.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             bone3.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-
+//BACKUP
 //            int dEnc = 10;
 //            int lastEnc = 0;
-//            while(dEnc > 0){
-//                bone1.setPower(0.1);
-//                bone2.setPower(0.1);
-//                bone3.setPower(0.1);
-//                dEnc = bone1.getCurrentPosition() - lastEnc;
+//            Timer iterator = new Timer();
+//            iterator.resetTimer();
+//            while((dEnc > 1 || iterator.getElapsedTimeSeconds() < 0.5) && iterator.getElapsedTimeSeconds()<1.5){
+//                bone1.setPower(0.5);
+////                bone2.setPower(0.5);
+//                bone3.setPower(0.5);
+//                dEnc = Math.abs(Math.abs(bone1.getCurrentPosition()) - lastEnc);
+//                lastEnc = Math.abs(bone1.getCurrentPosition());
+//
 //            }
-            bone1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            bone2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            bone3.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//            bone1.setPower(0);
+//            bone3.setPower(0);
+//            while(iterator.getElapsedTimeSeconds() < 2.5) {
+//                if(iterator.getElapsedTimeSeconds()>2) {
+//                    for (int i = 0; i < 20; i++) {
+//                        bone1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//                        bone2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//                        bone3.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//                    }
+//                }
+//            }
 
 
             //AFTER AUTOMATIC ENCODER RESET -----------
@@ -562,7 +577,7 @@ public void upperGrabberJoint(double g){}
                     LOWF = 0.41;
                     HIGHF = 0.34;
                     SLIDEPOS0 = -50;
-                    SLIDEPOSF = 0;
+                    SLIDEPOSF = -17;
                     break;
 
                 case 1: // Sample
@@ -596,6 +611,7 @@ public void upperGrabberJoint(double g){}
             }
             //DETERMINE DESIRED POSITION
             bone1.setPower(POWER);bone3.setPower(POWER);
+
             motorPos(SLIDEPOS0);
             smoothJoints(LOW0,LOWF,HIGHF);
             motorPos(SLIDEPOSF);
@@ -604,10 +620,9 @@ public void upperGrabberJoint(double g){}
         }
     }
 
-    public void autoColorBehavior(int CurrentArmPos, boolean Blue, String sensor){
+    public void autoColorBehavior(int CurrentArmPos, boolean Blue, String sensor, Telemetry telemetry){
         float hue;
-        int colorDetect = 0;
-        int yellowDetect = 0;
+
         int i = 0;
         COLORTIME.resetTimer();
         boolean sample = false, specimen = false, CONTINUE = false;
@@ -639,7 +654,7 @@ public void upperGrabberJoint(double g){}
                 break;
 
             case "SLURP":
-                while(COLORTIME.getElapsedTimeSeconds() < 3) {
+                while(COLORTIME.getElapsedTimeSeconds() < 10 && yellowDetect < 1 && colorDetect < 1) {
                     Color.RGBToHSV(
                             (int) (SlurpSense.red() * 255.0 / 1023),
                             (int) (SlurpSense.green() * 255.0 / 1023),
@@ -659,18 +674,20 @@ public void upperGrabberJoint(double g){}
                     } else if (hue > 50 && hue < 85) {yellowDetect++;}
                     if (hue > 156 && hue < 164) {zero8.setPower(-1);}
 
-                    if (yellowDetect > 1) {
+                    if (yellowDetect > 0) {
                         wrist.setPosition(0.0);
                         wrist2.setPosition(0.0);
-                        HSlidePos(0);sample = true;i = 100;
+                        HSlidePos(0);sample = true;
                     }
-                    else if (colorDetect > 1) {
+                    else if (colorDetect > 0) {
                         wrist.setPosition(0.0);
                         wrist2.setPosition(0.0);
-                        HSlidePos(0);specimen = true;i = 100;
+                        HSlidePos(0);specimen = true;
                     }
+                    telemetry.addData("HUE", hue);
+                    telemetry.update();
                 }
-                while(!CONTINUE || COLORTIME.getElapsedTimeSeconds() < 4){
+                while(!CONTINUE && COLORTIME.getElapsedTimeSeconds() < 20){
                     zero8.setPower(0);
                     Color.RGBToHSV(
                             (int) (ClawSense.red() * 255.0 / 1023),
@@ -687,10 +704,13 @@ public void upperGrabberJoint(double g){}
 //                    if(i>600){
 //                        closeClaw();CONTINUE = true;
 //                    }
+                    telemetry.addData("HUE", hue);
+                    telemetry.update();
                 }
-                if(specimen)armHandler(CurrentArmPos, 2);
-                else if(sample)armHandler(CurrentArmPos, 1);
-                else armHandler(CurrentArmPos, 1);
+//                if(specimen)armHandler(CurrentArmPos, 2);
+//                else if(sample)armHandler(CurrentArmPos, 1);
+//                else armHandler(CurrentArmPos, 1);
+                armHandler(CurrentArmPos, 1);
 
 
 
@@ -704,6 +724,21 @@ public void upperGrabberJoint(double g){}
 
 
 
+    }
+
+    public void applyToMotors( double currentPosition, double maxPower) {
+        double power = pid.calculatePower(currentPosition);
+
+        // Clip the power to prevent exceeding the motor range (-1.0 to 1.0)
+        power = Math.max(-1.0, Math.min(1.0, power));
+        power = Math.min(maxPower, Math.abs(power)) * Math.abs(power) / power;
+
+        // Apply power to both motors
+        bone1.setPower(power);
+        bone3.setPower(power);
+    }
+    public void setPidTarget(double target){
+        pid.setTargetPosition(target);
     }
 
 }

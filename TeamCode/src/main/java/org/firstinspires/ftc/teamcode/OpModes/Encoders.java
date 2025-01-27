@@ -1,0 +1,59 @@
+package org.firstinspires.ftc.teamcode.OpModes;
+
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
+
+
+
+import java.util.ArrayList;
+
+//import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+
+@Config
+@TeleOp(name = "RUN_THIS_EVERYTIME!!")
+public class Encoders extends LinearOpMode {
+
+
+    GeneralHardwareMap gHMap = new GeneralHardwareMap(this);
+
+
+public int pos = 0;
+
+    @Override
+    public void runOpMode() throws InterruptedException {
+        //gHMap.initRANDOMOTOR("slideAngle");
+        //gHMap.initRANDOMOTOR2("slideLength");
+        gHMap.init("Kineses");
+        waitForStart();
+        while (opModeIsActive()) {
+            if(gamepad1.right_trigger>0.1){pos--;}
+            if(gamepad1.left_trigger>0.1){pos++;}
+            gHMap.motorPos(pos);
+
+            if (gamepad1.cross || gamepad1.square) {
+                gHMap.bone1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                gHMap.bone2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                gHMap.bone3.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            }
+
+            telemetry.addData("motor1", gHMap.bone1.getCurrentPosition());
+            telemetry.addData("motor3", gHMap.bone3.getCurrentPosition());
+            telemetry.addData("Intended POS", pos);
+            telemetry.update();
+
+            TelemetryPacket packet = new TelemetryPacket();
+            FtcDashboard.getInstance().sendTelemetryPacket(packet);
+        }
+    }
+}
+
+
+
+
