@@ -47,17 +47,17 @@ public class SP {
     public static final Pose NetZoneStart = new Pose(144 - widthOffset, 48 + lengthOffset, Math.toRadians(180)); // Net start
 
 
-    public static final Pose Specimen0 = new Pose(96 + lengthOffset, 76.5 + placementRange, Math.toRadians(180));
+    public static final Pose Specimen0 = new Pose(48 + lengthOffset, 67.5 + placementRange, Math.toRadians(180));
 
-    public static final Pose Specimen1 = new Pose(96 + lengthOffset, 78 + placementRange, Math.toRadians(180)); // Specimen1
+    public static final Pose Specimen1 = new Pose(48 + lengthOffset, 66 + placementRange, Math.toRadians(180)); // Specimen1
 
-    public static final Pose Specimen2 = new Pose(96 + lengthOffset, 79.5 + placementRange, Math.toRadians(180)); // Specimen2
+    public static final Pose Specimen2 = new Pose(48 + lengthOffset, 64.5 + placementRange, Math.toRadians(180)); // Specimen2
 
-    public static final Pose Specimen3 = new Pose(96 + lengthOffset, 81 + placementRange, Math.toRadians(180)); // Specimen3
+    public static final Pose Specimen3 = new Pose(48 + lengthOffset, 63 + placementRange, Math.toRadians(180)); // Specimen3
 
-    public static final Pose Specimen4 = new Pose(96 + lengthOffset, 82.5 + placementRange, Math.toRadians(180)); // Specimen4
+    public static final Pose Specimen4 = new Pose(48 + lengthOffset, 61.5 + placementRange, Math.toRadians(180)); // Specimen4
 
-    public static final Pose Specimen5 = new Pose(96 + lengthOffset, 63, Math.toRadians(180)); // Specimen5
+    public static final Pose Specimen5 = new Pose(48 + lengthOffset, 60, Math.toRadians(180)); // Specimen5
 
     public static final Pose NetSpecimen = new Pose(96, 82.5 + placementRange, Math.toRadians(180)); // Net Specimen
 

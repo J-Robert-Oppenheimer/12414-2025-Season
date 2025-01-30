@@ -170,7 +170,7 @@ public class GetJinxed extends OpMode {
                 }
                 if(pathTimer.getElapsedTimeSeconds() > 2) {setPathState(2);gHMap.armHandler(ArmPos, 0);
                     ArmPos = 0;
-                    }//HERE
+                }//HERE
                 break;
             case 2:
 
@@ -231,7 +231,7 @@ public class GetJinxed extends OpMode {
                 if(pathTimer.getElapsedTimeSeconds() > 1) {
                     gHMap.openClaw();}
 
-                    if (pathTimer.getElapsedTimeSeconds() > 1.5){
+                if (pathTimer.getElapsedTimeSeconds() > 1.5){
                     gHMap.armHandler(1, 0);
                     ArmPos = 0;
                     setPathState(6);}
@@ -280,12 +280,12 @@ public class GetJinxed extends OpMode {
             case 9:
                 if(pathTimer.getElapsedTimeSeconds() > 0.5) {
                     gHMap.openClaw();}
-                    if (pathTimer.getElapsedTimeSeconds() > 1){
-                        gHMap.armHandler(ArmPos, 0);
+                if (pathTimer.getElapsedTimeSeconds() > 1){
+                    gHMap.armHandler(ArmPos, 0);
                     ArmPos = 0;}
-                    if (pathTimer.getElapsedTimeSeconds() > 1.5) {
-                        setPathState(10);
-                    }
+                if (pathTimer.getElapsedTimeSeconds() > 1.5) {
+                    setPathState(10);
+                }
 
                 break;
             case 10:
@@ -330,16 +330,16 @@ public class GetJinxed extends OpMode {
             case 13:
                 if(pathTimer.getElapsedTimeSeconds() > 1.25) {
                     gHMap.openClaw();}
-                    if (pathTimer.getElapsedTimeSeconds() > 1.5){
+                if (pathTimer.getElapsedTimeSeconds() > 1.5){
 //                        gHMap.armHandler(ArmPos, 0);
-                        gHMap.bone1.setPower(0.5);
-                        gHMap.bone3.setPower(0.5);
-                        gHMap.motorPos(0);
-                    }
-                    ArmPos = 0;
-                    if (pathTimer.getElapsedTimeSeconds() > 2) {
-                        setPathState(-1);
-                    }
+                    gHMap.bone1.setPower(0.5);
+                    gHMap.bone3.setPower(0.5);
+                    gHMap.motorPos(0);
+                }
+                ArmPos = 0;
+                if (pathTimer.getElapsedTimeSeconds() > 2) {
+                    setPathState(-1);
+                }
 
                 break;
 
@@ -382,7 +382,7 @@ public class GetJinxed extends OpMode {
         pathTimer = new Timer();
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
-        gHMap.init("Kineses");
+        gHMap.init("Autonomous");
         gHMap.armHandler(ArmPos,0);
         ArmPos = 0;
         while (opmodeTimer.getElapsedTimeSeconds() < 5){
