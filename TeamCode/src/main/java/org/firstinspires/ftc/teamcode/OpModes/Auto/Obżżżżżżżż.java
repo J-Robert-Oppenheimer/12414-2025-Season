@@ -51,25 +51,22 @@ public class Obżżżżżżżż extends OpMode {
      * Lets assume the Robot is facing the human player and we want to score in the bucket */
 
     /** Start Pose of our robot */
-    private final Pose startPose = new Pose(7.5, 54.5, Math.toRadians(180));
+    private final Pose startPose = new Pose(9.5, 54.5, Math.toRadians(180));
+    private final Pose scorePose0 = new Pose(37.5, 60, Math.toRadians(180));
+    private final Pose scorePose1 = new Pose(37.5, 61.5, Math.toRadians(180));
+    private final Pose scorePose2 = new Pose(37.5, 63, Math.toRadians(180));
+    private final Pose scorePose3 = new Pose(37.5, 64.5, Math.toRadians(180));
+    private final Pose scorePose4 = new Pose(37.5, 66, Math.toRadians(180));
+    private final Pose wall = new Pose(39, 9, Math.toRadians(135)); //Intake
+    private final Pose wallD = new Pose(15.5, 9, Math.toRadians(135)); //Placement
+    private final Pose mid = new Pose(36, 12, Math.toRadians(0)); //Intake
+    private final Pose midD = new Pose(15.5, 12, Math.toRadians(0)); //Placement
+    private final Pose sub = new Pose(36, 23, Math.toRadians(0)); //Intake
+    private final Pose subD = new Pose(15.5, 23, Math.toRadians(0)); //Placement
+    private final Pose pickup = new Pose(9.8, 22, Math.toRadians(0)); // Intake
+    private final Pose parkPose = new Pose(9.8, 24, Math.toRadians(180));
 
-    /** Scoring Pose of our robot. It is facing the submersible at a -45 degree (315 degree) angle. */
-    private final Pose scorePose1 = new Pose(38, 62, Math.toRadians(180));
-
-    private final Pose
-//    private final Pose scorePose = new Pose(15, 129, Math.toRadians(315));
-
-    /** Park Pose for our robot, after we do all of the scoring. */
-    private final Pose parkPose = new Pose(64.5, 48.5, Math.toRadians(270));
-//    private final Pose parkPose = new Pose(60, 98, Math.toRadians(90));
-
-    /** Park Control Pose for our robot, this is used to manipulate the bezier curve that we will create for the parking.
-     * The Robot will not go to this pose, it is used a control point for our bezier curve. */
-    private final Pose parkControlPose1 = new Pose(10, -20, Math.toRadians(90));
-    private final Pose parkControlPose2 = new Pose(70, 12, Math.toRadians(90));
-
-    /* These are our Paths and PathChains that we will define in buildPaths() */
-    private Path scorePreload, park;
+    private Path scorePreload, subP, subDrop, midP, midDrop, wallP, wallDrop, p1, p2, p3, p4, score1, score2, score3, score4, park;
 
     /** Build the paths for the auto (adds, for example, constant/linear headings while doing paths)
      * It is necessary to do this so that all the paths are built before the auto starts. **/
@@ -91,12 +88,53 @@ public class Obżżżżżżżż extends OpMode {
          * Here is a explanation of the difference between Paths and PathChains <https://pedropathing.com/commonissues/pathtopathchain.html> */
 
         /* This is our scorePreload path. We are using a BezierLine, which is a straight line. */
-        scorePreload = new Path(new BezierLine(new Point(startPose), new Point(scorePose)));
-        scorePreload.setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading());
+        scorePreload = new Path(new BezierLine(new Point(startPose), new Point(scorePose0)));
+        scorePreload.setLinearHeadingInterpolation(startPose.getHeading(), scorePose0.getHeading());
 
-        /* This is our park path. We are using a BezierCurve with 3 points, which is a curved line that is curved based off of the control point */
-        park = new Path(new BezierCurve(new Point(scorePose), new Point(parkControlPose1), new Point(parkControlPose2), new Point(parkPose)));
-        park.setLinearHeadingInterpolation(scorePose.getHeading(), parkPose.getHeading());
+        subP = new Path(new BezierLine(new Point(scorePose0), new Point(sub)));
+        subP.setLinearHeadingInterpolation(scorePose0.getHeading(), sub.getHeading());
+
+        subDrop = new Path(new BezierLine(new Point(sub), new Point(subD)));
+        subDrop.setLinearHeadingInterpolation(sub.getHeading(), subD.getHeading());
+
+        midP = new Path(new BezierLine(new Point(subD), new Point(mid)));
+        midP.setLinearHeadingInterpolation(subD.getHeading(), mid.getHeading());
+
+        midDrop = new Path(new BezierLine(new Point(mid), new Point(midD)));
+        midDrop.setLinearHeadingInterpolation(mid.getHeading(), midD.getHeading());
+
+        wallP = new Path(new BezierLine(new Point(midD), new Point(wall)));
+        wallP.setLinearHeadingInterpolation(midD.getHeading(), wall.getHeading());
+
+        wallDrop = new Path(new BezierLine(new Point(wall), new Point(wallD)));
+        wallDrop.setLinearHeadingInterpolation(wall.getHeading(), wallD.getHeading());
+
+        p1 = new Path(new BezierLine(new Point(wallD), new Point(pickup)));
+        p1.setLinearHeadingInterpolation(wallD.getHeading(), pickup.getHeading());
+
+        score1 = new Path(new BezierLine(new Point(pickup), new Point(scorePose1)));
+        score1.setLinearHeadingInterpolation(pickup.getHeading(), scorePose1.getHeading());
+
+        p2 = new Path(new BezierLine(new Point(scorePose1), new Point(pickup)));
+        p2.setLinearHeadingInterpolation(scorePose1.getHeading(), pickup.getHeading());
+
+        score2 = new Path(new BezierLine(new Point(pickup), new Point(scorePose2)));
+        score2.setLinearHeadingInterpolation(pickup.getHeading(), scorePose2.getHeading());
+
+        p3 = new Path(new BezierLine(new Point(scorePose2), new Point(pickup)));
+        p3.setLinearHeadingInterpolation(scorePose2.getHeading(), pickup.getHeading());
+
+        score3 = new Path(new BezierLine(new Point(pickup), new Point(scorePose3)));
+        score3.setLinearHeadingInterpolation(pickup.getHeading(), scorePose3.getHeading());
+
+        p4 = new Path(new BezierLine(new Point(scorePose3), new Point(pickup)));
+        p4.setLinearHeadingInterpolation(scorePose3.getHeading(), pickup.getHeading());
+
+        score4 = new Path(new BezierLine(new Point(pickup), new Point(scorePose4)));
+        score4.setLinearHeadingInterpolation(pickup.getHeading(), scorePose4.getHeading());
+
+        park = new Path(new BezierLine(new Point(scorePose4), new Point(parkPose)));
+        park.setLinearHeadingInterpolation(scorePose4.getHeading(), parkPose.getHeading());
     }
 
     /** This switch is called continuously and runs the pathing, at certain points, it triggers the action state.
@@ -124,18 +162,183 @@ public class Obżżżżżżżż extends OpMode {
 //                    }
                 break;
 
-
             case 2:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
                 if(!follower.isBusy()) {
                     /* Score Sample */
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are parked */
-                    follower.followPath(park,true);
-                    setPathState(-1);
+                    follower.followPath(subP,true);
+                    setPathState(4);
                 }
                 break;
+
+            case 4:
+                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
+                if(!follower.isBusy()) {
+                    /* Score Sample */
+
+                    /* Since this is a pathChain, we can have Pedro hold the end point while we are parked */
+                    follower.followPath(subDrop,true);
+                    setPathState(6);
+                }
+                break;
+
+            case 6:
+                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
+                if(!follower.isBusy()) {
+                    /* Score Sample */
+
+                    /* Since this is a pathChain, we can have Pedro hold the end point while we are parked */
+                    follower.followPath(midP,true);
+                    setPathState(8);
+                }
+                break;
+
+            case 8:
+                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
+                if(!follower.isBusy()) {
+                    /* Score Sample */
+
+                    /* Since this is a pathChain, we can have Pedro hold the end point while we are parked */
+                    follower.followPath(midDrop,true);
+                    setPathState(10);
+                }
+                break;
+
+            case 10:
+                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
+                if(!follower.isBusy()) {
+                    /* Score Sample */
+
+                    /* Since this is a pathChain, we can have Pedro hold the end point while we are parked */
+                    follower.followPath(wallP,true);
+                    setPathState(12);
+                }
+                break;
+
+            case 12:
+                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
+                if(!follower.isBusy()) {
+                    /* Score Sample */
+
+                    /* Since this is a pathChain, we can have Pedro hold the end point while we are parked */
+                    follower.followPath(wallDrop,true);
+                    setPathState(14);
+                }
+                break;
+
+            case 14:
+                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
+                if(!follower.isBusy()) {
+                    /* Score Sample */
+
+                    /* Since this is a pathChain, we can have Pedro hold the end point while we are parked */
+                    follower.followPath(p1,true);
+                    setPathState(16);
+                }
+                break;
+
             case 16:
+                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
+                if(!follower.isBusy()) {
+                    /* Score Sample */
+
+                    /* Since this is a pathChain, we can have Pedro hold the end point while we are parked */
+                    follower.followPath(score1,true);
+                    setPathState(18);
+                }
+                break;
+
+            case 18:
+                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
+                if(!follower.isBusy()) {
+                    /* Score Sample */
+
+                    /* Since this is a pathChain, we can have Pedro hold the end point while we are parked */
+                    follower.followPath(p2,true);
+                    setPathState(20);
+                }
+                break;
+
+            case 20:
+                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
+                if(!follower.isBusy()) {
+                    /* Score Sample */
+
+                    /* Since this is a pathChain, we can have Pedro hold the end point while we are parked */
+                    follower.followPath(score2,true);
+                    setPathState(22);
+                }
+                break;
+
+            case 22:
+                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
+                if(!follower.isBusy()) {
+                    /* Score Sample */
+
+                    /* Since this is a pathChain, we can have Pedro hold the end point while we are parked */
+                    follower.followPath(p3,true);
+                    setPathState(24);
+                }
+                break;
+
+            case 24:
+                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
+                if(!follower.isBusy()) {
+                    /* Score Sample */
+
+                    /* Since this is a pathChain, we can have Pedro hold the end point while we are parked */
+                    follower.followPath(score3,true);
+                    setPathState(26);
+                }
+                break;
+
+            case 26:
+                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
+                if(!follower.isBusy()) {
+                    /* Score Sample */
+
+                    /* Since this is a pathChain, we can have Pedro hold the end point while we are parked */
+                    follower.followPath(p4,true);
+                    setPathState(28);
+                }
+                break;
+
+            case 28:
+                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
+                if(!follower.isBusy()) {
+                    /* Score Sample */
+
+                    /* Since this is a pathChain, we can have Pedro hold the end point while we are parked */
+                    follower.followPath(score4,true);
+                    setPathState(30);
+                }
+                break;
+
+            case 30:
+                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
+                if(!follower.isBusy()) {
+                    /* Score Sample */
+
+                    /* Since this is a pathChain, we can have Pedro hold the end point while we are parked */
+                    follower.followPath(score3,true);
+                    setPathState(32);
+                }
+                break;
+
+            case 32:
+                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
+                if(!follower.isBusy()) {
+                    /* Score Sample */
+
+                    /* Since this is a pathChain, we can have Pedro hold the end point while we are parked */
+                    follower.followPath(park,true);
+                    setPathState(33);
+                }
+                break;
+
+            case 33:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
                 if(!follower.isBusy()) {
                     /* Level 1 Ascent */

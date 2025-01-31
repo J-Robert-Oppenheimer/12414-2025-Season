@@ -81,11 +81,11 @@ public class SP {
     public static final Pose SpikeSubNet = new Pose(98, 23, Math.toRadians(180)); // Net Sub
 
 
-    public static final Pose SampleIntakeObsSub = new Pose(98 + intakeRange, 121, Math.toRadians(180)); // Obs Sub Intake
+    public static final Pose SampleIntakeObsSub = new Pose(46 + intakeRange, 23, Math.toRadians(180)); // Obs Sub Intake
 
-    public static final Pose SampleIntakeObsMid = new Pose(98 + intakeRange, 132, Math.toRadians(180)); // Obs Mid Intake
+    public static final Pose SampleIntakeObsMid = new Pose(46 + intakeRange, 12, Math.toRadians(180)); // Obs Mid Intake
 
-    public static final Pose SampleIntakeObsWall = new Pose(IntakeRangex(135) + 98, 142 - IntakeRangey(240), Math.toRadians(135)); // Obs Wall Intake
+    public static final Pose SampleIntakeObsWall = new Pose(IntakeRangex(135) + 46, 2 + IntakeRangey(135), Math.toRadians(135)); // Obs Wall Intake
 
     public static final Pose SampleIntakeNetSub = new Pose(98 + intakeRange, 23, Math.toRadians(180)); // Net Sub Intake
 
