@@ -54,6 +54,7 @@ public class GeneralHardwareMap {
     public Servo clawAngleH, clawAngleVL, clawAngleVR, claw;
     public Servo slideAngleR, slideAngleL, ex, ex2;
     public Servo wrist, wrist2;
+    public CRServo zero6;
     public WebcamName bonoboCam;
     public HuskyLens husky;
     public DistanceSensor distanceSensor;
@@ -168,8 +169,8 @@ public class GeneralHardwareMap {
         }
         */
     public void initLL() {
-        limeServo = this.opMode.hardwareMap.servo.get("Lime");
-        limeServo.setPosition(0.5);
+//        limeServo = this.opMode.hardwareMap.servo.get("Lime");
+//        limeServo.setPosition(0.5);
         limelight = this.opMode.hardwareMap.get(Limelight3A.class, "limelight");
         limelight.pipelineSwitch(1);
         limelight.start();
@@ -454,9 +455,29 @@ public void upperGrabberJoint(double g){}
 
         }
 
+        if(opModeType.equals("Ra")) {
 
 
+            ex = this.opMode.hardwareMap.servo.get("extend");
 
+            ex2  = this.opMode.hardwareMap.servo.get("extend2");
+            ex.setDirection(Servo.Direction.REVERSE);
+            ex.scaleRange(0.0,0.05);
+            ex2.scaleRange(0.0,0.05);
+            ex2.setPosition(0);
+            ex.setPosition(0.0);
+            zero8 = this.opMode.hardwareMap.crservo.get("zero");//Slurp
+            //ex2.setDirection(Servo.Direction.REVERSE);IF NEEDED
+            wrist  = this.opMode.hardwareMap.servo.get("wrist");
+
+//            wrist.setDirection(Servo.Direction.REVERSE);
+            wrist.setPosition(0);
+            wrist2  = this.opMode.hardwareMap.servo.get("wrist2");
+            wrist2.setDirection(Servo.Direction.REVERSE);
+            //wrist2.setPosition(0);
+            //wrist2.setDirection(Servo.Direction.REVERSE);IF NEEDED
+
+        }
 
 
 
@@ -527,7 +548,7 @@ public void upperGrabberJoint(double g){}
     }
     public void motorPos(int Pos){
         bone1.setTargetPosition(Pos);
-        bone3.setTargetPosition(Pos);
+        bone3.setTargetPosition(-Pos);
     }
     public void HSlidePos(double Pos){
         ex.setPosition(Pos);
@@ -562,7 +583,11 @@ public void upperGrabberJoint(double g){}
 
                 case 3: // Spec Place Position
                     //description = "Spec Place position: Low joint = 0.24, High joint = 0.22";
-                    LOW0 = 0.24;
+                    LOW0 = 0.71;
+                    break;
+                case 5: // Spec Place Position
+                    //description = "Spec Place position: Low joint = 0.24, High joint = 0.22";
+                    LOW0 = 0.31;
                     break;
 
                 default: // Catch-all for invalid cases
@@ -599,10 +624,17 @@ public void upperGrabberJoint(double g){}
 
                 case 3: // Spec Place Position
                     //description = "Spec Place position: Low joint = 0.24, High joint = 0.22";
-                    LOWF = 0.24;
-                    HIGHF = 0.2;
+                    LOWF = 0.71;
+                    HIGHF = 0.62;
+                    SLIDEPOS0 = -400;
+                    SLIDEPOSF = -400;
+                    break;
+                case 5: // Spec Place Position
+                    //description = "Spec Place position: Low joint = 0.24, High joint = 0.22";
+                    LOWF = 0.31;
+                    HIGHF = 0.41;
                     SLIDEPOS0 = -50;
-                    SLIDEPOSF = -125;
+                    SLIDEPOSF = -0;
                     break;
 
                 default: // Catch-all for invalid cases
@@ -611,7 +643,8 @@ public void upperGrabberJoint(double g){}
             }
             //DETERMINE DESIRED POSITION
             bone1.setPower(POWER);bone3.setPower(POWER);
-
+            SLIDEPOS0 = (int)(SLIDEPOS0 *1.5);
+            SLIDEPOSF = (int)(SLIDEPOSF *1.5);
             motorPos(SLIDEPOS0);
             smoothJoints(LOW0,LOWF,HIGHF);
             motorPos(SLIDEPOSF);
