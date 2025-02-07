@@ -137,8 +137,8 @@ public class Demons extends OpMode {
         p1 = new Path(new BezierLine(new Point(PreparePickup), new Point(pickup)));
         p1.setLinearHeadingInterpolation(PreparePickup.getHeading(), pickup.getHeading());
 
-        p12 = new Path(new BezierLine(new Point(PickupControl), new Point(pickup)));
-        p12.setLinearHeadingInterpolation(PickupControl.getHeading(), pickup.getHeading());
+        p12 = new Path(new BezierLine(new Point(mid), new Point(pickup)));
+        p12.setLinearHeadingInterpolation(mid.getHeading(), pickup.getHeading());
 
 
         score1 = follower.pathBuilder()
@@ -320,7 +320,7 @@ public class Demons extends OpMode {
                         ArmPos = 2;
                         gHMap.openClaw();}
                     if (pathTimer.getElapsedTimeSeconds() > 2.25) {
-                        setPathState(10);
+                        setPathState(99);//GO
 
                         }
 
@@ -416,7 +416,7 @@ public class Demons extends OpMode {
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
                 if(!follower.isBusy()) {
                     gHMap.closeClaw();
-                    if (pathTimer.getElapsedTimeSeconds() > 2) {setPathState(17);}
+                    if (pathTimer.getElapsedTimeSeconds() > 1.5) {setPathState(17);}
                 }
 
                 break;
@@ -537,7 +537,7 @@ public class Demons extends OpMode {
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
                 if(!follower.isBusy()) {
                     gHMap.closeClaw();
-                    if (pathTimer.getElapsedTimeSeconds() > 3) {setPathState(28);}
+                    if (pathTimer.getElapsedTimeSeconds() > 3) {setPathState(32);}//28
                 }
 
                 break;

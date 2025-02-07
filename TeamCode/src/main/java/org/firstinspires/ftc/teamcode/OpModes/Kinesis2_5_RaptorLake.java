@@ -294,8 +294,8 @@ public class Kinesis2_5_RaptorLake extends OpMode {
 //        if (gamepad2.left_bumper && HslidePos > 0) HslidePos -= 0.005;
 //        if(HslidePos < 0.005)first=true;
 
-        gHMap.ex.setPosition(HslidePos);
-        gHMap.ex2.setPosition(HslidePos);
+        gHMap.ex.setPosition(HslidePos/2);
+        gHMap.ex2.setPosition(HslidePos/2);
 
 
 

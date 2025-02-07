@@ -348,9 +348,12 @@ public void upperGrabberJoint(double g){}
             ex = this.opMode.hardwareMap.servo.get("extend");
 
             ex2  = this.opMode.hardwareMap.servo.get("extend2");
-            ex.setDirection(Servo.Direction.REVERSE);
-            ex.scaleRange(0.0,0.05);
-            ex2.scaleRange(0.0,0.05);
+//            ex.setDirection(Servo.Direction.REVERSE);
+            ex2.setDirection(Servo.Direction.REVERSE);
+            ex.scaleRange(0.0,0.5);
+//            ex.scaleRange(0.0,0.05);
+            ex2.scaleRange(0.0,0.5);
+//            ex2.scaleRange(0.0,0.05);
             ex2.setPosition(0);
             ex.setPosition(0.0);
             zero  = this.opMode.hardwareMap.servo.get("4");//Lower Joint
@@ -551,8 +554,8 @@ public void upperGrabberJoint(double g){}
         bone3.setTargetPosition(-Pos);
     }
     public void HSlidePos(double Pos){
-        ex.setPosition(Pos);
-        ex2.setPosition(Pos);}
+        ex.setPosition(Pos/2);
+        ex2.setPosition(Pos/2);}
     public void WristPos(double Pos){
         wrist.setPosition(Pos);
         wrist2.setPosition(Pos);
@@ -602,7 +605,7 @@ public void upperGrabberJoint(double g){}
                     LOWF = 0.41;
                     HIGHF = 0.34;
                     SLIDEPOS0 = -50;
-                    SLIDEPOSF = -17;
+                    SLIDEPOSF = -35;
                     break;
 
                 case 1: // Sample
