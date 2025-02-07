@@ -524,7 +524,7 @@ public void upperGrabberJoint(double g){}
         double dY = -10;
         double iY = 22;
         double L = 12;
-        int speed = 20;
+        int speed = 15;
         double inverse = (double) -1 /speed;
         for(int i = speed * -5; i < 7*speed; i++){
             lockArm2Height(dY/(1+Math.pow(Math.E, inverse*i))+iY, L);
@@ -538,7 +538,7 @@ public void upperGrabberJoint(double g){}
         double dY = lowF-low0;
 //        double iY = low0;
         double T = 0.62;
-        int speed = 40;
+        int speed = 15;
         double inverse = (double) -1 /speed;
         for(int i = speed * -5; i < 7*speed; i++){
            // lockArm2Height(dY/(1+Math.pow(Math.E, inverse*i))+low0, L);
@@ -617,8 +617,8 @@ public void upperGrabberJoint(double g){}
                     //description = "Wall Grab position: Low joint = 0.77, High joint = 0.38";
                     LOWF = 0.77;
                     HIGHF = 0.38;
-                    SLIDEPOS0 = -100;
-                    SLIDEPOSF = -0;
+                    SLIDEPOS0 = -150;
+                    SLIDEPOSF = -75;
 
                     break;
 
@@ -631,7 +631,7 @@ public void upperGrabberJoint(double g){}
                     break;
                 case 5: // Spec Place Position
                     //description = "Spec Place position: Low joint = 0.24, High joint = 0.22";
-                    LOWF = 0.31;
+                    LOWF = 0.29;
                     HIGHF = 0.41;
                     SLIDEPOS0 = -50;
                     SLIDEPOSF = -0;

@@ -47,6 +47,6 @@ public class FConstants {
         FollowerConstants.pathEndTValueConstraint = 0.995;
         FollowerConstants.pathEndVelocityConstraint = 0.1;
         FollowerConstants.pathEndTranslationalConstraint = 0.1;
-        FollowerConstants.pathEndHeadingConstraint = 0.0007;
+        FollowerConstants.pathEndHeadingConstraint = 0.00007;//0
     }
 }

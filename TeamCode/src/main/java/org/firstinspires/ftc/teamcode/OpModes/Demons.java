@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.OpModes;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
-import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.PathChain;
@@ -11,8 +10,6 @@ import com.pedropathing.util.Constants;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-
-import org.firstinspires.ftc.teamcode.OpModes.GeneralHardwareMap;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
@@ -27,8 +24,8 @@ import pedroPathing.constants.LConstants;
  * @version 2.0, 11/28/2024
  */
 
-@Autonomous(name = "BlackWell")
-public class BlackWell extends OpMode {
+@Autonomous(name = "Demons")
+public class Demons extends OpMode {
 
     private Follower follower;
     private Timer pathTimer, actionTimer, opmodeTimer;
@@ -68,11 +65,11 @@ public class BlackWell extends OpMode {
     private final Pose scorePose4I = new Pose(inter, specPlace+spacing*5, Math.toRadians(180));
     private final Pose wall = new Pose(28.5, 21, Math.toRadians(310)); //Intake
     private final Pose wallD = new Pose(15.5, 22, Math.toRadians(310)); //Placement
-    private final Pose mid = new Pose(22, 11, Math.toRadians(0)); //Intake
+    private final Pose mid = new Pose(22, 11+1.5, Math.toRadians(0)); //Intake
     private final Pose midD = new Pose(15.5, 12, Math.toRadians(0)); //Placement
-    private final Pose sub = new Pose(22, 20, Math.toRadians(0)); //Intake
+    private final Pose sub = new Pose(22, 20+1, Math.toRadians(0)); //Intake
     private final Pose subD = new Pose(15.5, 23, Math.toRadians(0)); //Placement
-    private final Pose pickup = new Pose(15.5, 24, Math.toRadians(0)); // Intake
+    private final Pose pickup = new Pose(16, 24, Math.toRadians(0)); // Intake
     private final Pose PreparePickup = new Pose(25, 24, Math.toRadians(0)); // Intake
     private final Pose PickupControl = new Pose(29, 14, Math.toRadians(0)); // Intake
     private final Pose parkPose = new Pose(9.8, 24, Math.toRadians(180));
@@ -133,12 +130,12 @@ public class BlackWell extends OpMode {
         wallP = new Path(new BezierLine(new Point(mid), new Point(wall)));
         wallP.setLinearHeadingInterpolation(mid.getHeading(), wall.getHeading());
 
-        wallDrop = new Path(new BezierLine(new Point(wall), new Point(midD)));
-        wallDrop.setLinearHeadingInterpolation(wall.getHeading(), midD.getHeading());
+        wallDrop = new Path(new BezierLine(new Point(wall), new Point(PreparePickup)));
+        wallDrop.setLinearHeadingInterpolation(wall.getHeading(), PreparePickup.getHeading());
 
 
-        p1 = new Path(new BezierLine(new Point(wallD), new Point(PickupControl)));
-        p1.setLinearHeadingInterpolation(wallD.getHeading(), PickupControl.getHeading());
+        p1 = new Path(new BezierLine(new Point(PreparePickup), new Point(pickup)));
+        p1.setLinearHeadingInterpolation(PreparePickup.getHeading(), pickup.getHeading());
 
         p12 = new Path(new BezierLine(new Point(PickupControl), new Point(pickup)));
         p12.setLinearHeadingInterpolation(PickupControl.getHeading(), pickup.getHeading());
@@ -224,9 +221,10 @@ public class BlackWell extends OpMode {
 
 
             case 1:
-                if(!follower.isBusy() || pathTimer.getElapsedTimeSeconds() > 2) {
+                if(!follower.isBusy() || pathTimer.getElapsedTimeSeconds() > 1.3) {
                     if(pathTimer.getElapsedTimeSeconds() > 0.5) {
-                        gHMap.openClaw();
+                        gHMap.openClaw();}
+                    if(pathTimer.getElapsedTimeSeconds() > 1.5) {
                         setPathState(2);
                     }
                 }
@@ -236,42 +234,55 @@ public class BlackWell extends OpMode {
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
                 if(!follower.isBusy()) {
                     follower.followPath(subP,true);
-                    setPathState(3);
+
+                    if(ArmPos != 0 && ArmPos != 2) {
+                        gHMap.closeClaw();
+                        gHMap.armHandler(ArmPos, 0);
+                        gHMap.openClaw();
+                        ArmPos = 0;
+                    }
+                }
+                if(pathTimer.getElapsedTimeSeconds() > 2.4){
+                setPathState(3);gHMap.autoExtend();
                 }
                 break;
 
             case 3:
 
                 if(!follower.isBusy()) {
-                    if (pathTimer.getElapsedTimeSeconds() < 2.5) {
-                        gHMap.autoExtend();}
-                if(ArmPos != 0 && ArmPos != 2) {
-                    gHMap.closeClaw();
-                    gHMap.armHandler(ArmPos, 0);
-                    gHMap.openClaw();
-                    ArmPos = 0;
-                }
-                    if (pathTimer.getElapsedTimeSeconds() > 3) {
+
+                    if (pathTimer.getElapsedTimeSeconds() > 1) {
                         gHMap.WristPos(0);
                         gHMap.HSlidePos(0);
                     }
-                    if (pathTimer.getElapsedTimeSeconds() > 3.5 && pathTimer.getElapsedTimeSeconds() < 6) {
+                    if (pathTimer.getElapsedTimeSeconds() > 1.5 && pathTimer.getElapsedTimeSeconds() < 2) {
                         gHMap.closeClaw();
                     }
-                    if (pathTimer.getElapsedTimeSeconds() > 4 && ArmPos != 2) {
-                        gHMap.armHandler(ArmPos, 2);
-                        ArmPos = 2;
-                        gHMap.openClaw();
-                    }
-                        if (pathTimer.getElapsedTimeSeconds() > 4.5) {
+                        if (pathTimer.getElapsedTimeSeconds() > 1.75) {
                             setPathState(4);}
 
 
 
                 }
                 break;
-
             case 4:
+                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
+                if(!follower.isBusy()) {
+                    /* Move into Position Collect Middle Sample */
+
+                    /* Since this is a pathChain, we can have Pedro hold the end point while we are parked */
+                    follower.followPath(midP,true);
+                    if (ArmPos != 2) {
+                        gHMap.armHandler(ArmPos, 2);
+                        ArmPos = 2;
+                        gHMap.openClaw();
+                        setPathState(5);
+                    }
+
+                }
+                break;
+
+            case 5:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
                 if(!follower.isBusy()) {
                     /* Score Sample */
@@ -279,47 +290,37 @@ public class BlackWell extends OpMode {
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are parked */
 //                    follower.followPath(subDrop,true);
                     gHMap.closeClaw();
+                    gHMap.autoExtend();
                     gHMap.armHandler(ArmPos, 0);
                     ArmPos = 0;
                     gHMap.openClaw();
-                    setPathState(6);
-                }
-                break;
-
-
-
-
-
-            case 6:
-                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
-                if(!follower.isBusy()) {
-                    /* Move into Position Collect Middle Sample */
-
-                    /* Since this is a pathChain, we can have Pedro hold the end point while we are parked */
-                    follower.followPath(midP,true);
                     setPathState(7);
                 }
-
-
                 break;
+
+
+
+
+
+
+
+
+
             case 7:
                 /* Collect Middle Sample */
                 if(!follower.isBusy()) {
-                    if (pathTimer.getElapsedTimeSeconds() < 2.5) {
-                        gHMap.autoExtend();}
-                    if (pathTimer.getElapsedTimeSeconds() > 3) {
                         gHMap.WristPos(0);
                         gHMap.HSlidePos(0);
-                    }
-                    if (pathTimer.getElapsedTimeSeconds() > 4 && pathTimer.getElapsedTimeSeconds() < 6) {
+
+                    if (pathTimer.getElapsedTimeSeconds() > 1 && pathTimer.getElapsedTimeSeconds() < 1.5) {
                         gHMap.closeClaw();
                     }
-                    if (pathTimer.getElapsedTimeSeconds() > 4.5 && ArmPos != 2) {
+                    if (pathTimer.getElapsedTimeSeconds() > 1.5 && ArmPos != 2) {
                         gHMap.armHandler(ArmPos, 2);
                         ArmPos = 2;
                         gHMap.openClaw();}
-                    if (pathTimer.getElapsedTimeSeconds() > 5) {
-                        setPathState(8);
+                    if (pathTimer.getElapsedTimeSeconds() > 2.25) {
+                        setPathState(10);
 
                         }
 
@@ -336,10 +337,7 @@ public class BlackWell extends OpMode {
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are parked */
 //                    follower.followPath(midDrop,true);
-                    gHMap.closeClaw();
-                    gHMap.armHandler(ArmPos, 0);
-                    ArmPos = 0;
-                    gHMap.openClaw();
+
                     setPathState(10);
                 }
                 break;
@@ -351,25 +349,30 @@ public class BlackWell extends OpMode {
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are parked */
                     follower.followPath(wallP,true);
-                    setPathState(12);
+                    gHMap.closeClaw();
+                    gHMap.armHandler(ArmPos, 0);
+                    ArmPos = 0;
+                    gHMap.openClaw();
+
                 }
+                if (pathTimer.getElapsedTimeSeconds() > 1) {
+                    gHMap.autoExtend();
+                    setPathState(12);}
                 break;
             case 12:
                 /* Pickup Wall Sample */
                 if(!follower.isBusy()) {
-                    if (pathTimer.getElapsedTimeSeconds() < 2) {
-                        gHMap.autoExtend();}
-                    if (pathTimer.getElapsedTimeSeconds() > 2.5) {
+                    if (pathTimer.getElapsedTimeSeconds() > 1) {
                         gHMap.WristPos(0);
                         gHMap.HSlidePos(0);
                     }
-                    if (pathTimer.getElapsedTimeSeconds() > 4) {
+                    if (pathTimer.getElapsedTimeSeconds() > 1.5) {
                         gHMap.closeClaw();
                     }
-                    if (pathTimer.getElapsedTimeSeconds() > 4.5 && ArmPos != 2) {
+                    if (pathTimer.getElapsedTimeSeconds() > 2 && ArmPos != 2) {
                         gHMap.armHandler(ArmPos, 2);
                         ArmPos = 2;}
-                        if (pathTimer.getElapsedTimeSeconds() > 4.75) {
+                        if (pathTimer.getElapsedTimeSeconds() > 2.3) {
                             setPathState(13);}
 
                 }
@@ -395,7 +398,7 @@ public class BlackWell extends OpMode {
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are parked */
                     follower.followPath(p1,true);
-                    setPathState(99);
+                    setPathState(16);
                 }
                 break;
             case 99:
@@ -413,7 +416,7 @@ public class BlackWell extends OpMode {
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
                 if(!follower.isBusy()) {
                     gHMap.closeClaw();
-                    if (pathTimer.getElapsedTimeSeconds() > 2.8) {setPathState(17);}
+                    if (pathTimer.getElapsedTimeSeconds() > 2) {setPathState(17);}
                 }
 
                 break;
@@ -422,17 +425,19 @@ public class BlackWell extends OpMode {
                     gHMap.armHandler(ArmPos, 3);
                     ArmPos = 3;
                 }
+                if(!follower.isBusy()) {
                 /* Score Sample */
 
                 /* Since this is a pathChain, we can have Pedro hold the end point while we are parked */
                 follower.followPath(score1,true);
-                setPathState(18);
+                setPathState(18);}
                 break;
 
             case 18:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
                 if(!follower.isBusy()) {
                     gHMap.openClaw();
+                    follower.followPath(p2,true);
                     if(ArmPos != 2) {
                         gHMap.armHandler(ArmPos, 2);
                         ArmPos = 2;
@@ -440,7 +445,7 @@ public class BlackWell extends OpMode {
                     /* Intake Specimen */
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are parked */
-                    follower.followPath(p2,true);
+
                     setPathState(19);
                 }
                 break;
@@ -448,7 +453,7 @@ public class BlackWell extends OpMode {
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
                 if(!follower.isBusy()) {
                     gHMap.closeClaw();
-                    if (pathTimer.getElapsedTimeSeconds() > 2.8) {setPathState(20);}
+                    if (pathTimer.getElapsedTimeSeconds() > 3) {setPathState(20);}
                 }
 
                 break;
@@ -475,6 +480,7 @@ public class BlackWell extends OpMode {
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
                 if(!follower.isBusy()) {
                     gHMap.openClaw();
+                    follower.followPath(p3,true);
                     if(ArmPos != 2) {
                         gHMap.armHandler(ArmPos, 2);
                         ArmPos = 2;
@@ -482,7 +488,7 @@ public class BlackWell extends OpMode {
                     /* Intake Specimen */
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are parked */
-                    follower.followPath(p3,true);
+
                     setPathState(23);
                 }
                 break;
@@ -490,7 +496,7 @@ public class BlackWell extends OpMode {
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
                 if(!follower.isBusy()) {
                     gHMap.closeClaw();
-                    if (pathTimer.getElapsedTimeSeconds() > 2.8) {setPathState(24);}
+                    if (pathTimer.getElapsedTimeSeconds() > 3) {setPathState(24);}
                 }
 
                 break;
@@ -515,6 +521,7 @@ public class BlackWell extends OpMode {
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
                 if(!follower.isBusy()) {
                     gHMap.openClaw();
+                    follower.followPath(p4,true);
                     if(ArmPos != 2) {
                         gHMap.armHandler(ArmPos, 2);
                         ArmPos = 2;
@@ -522,7 +529,7 @@ public class BlackWell extends OpMode {
                     /* Intake Specimen */
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are parked */
-                    follower.followPath(p4,true);
+
                     setPathState(27);
                 }
                 break;
@@ -530,7 +537,7 @@ public class BlackWell extends OpMode {
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
                 if(!follower.isBusy()) {
                     gHMap.closeClaw();
-                    if (pathTimer.getElapsedTimeSeconds() > 2.8) {setPathState(28);}
+                    if (pathTimer.getElapsedTimeSeconds() > 3) {setPathState(28);}
                 }
 
                 break;
@@ -539,6 +546,7 @@ public class BlackWell extends OpMode {
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
                 if(!follower.isBusy()) {
                     gHMap.closeClaw();
+                    follower.followPath(score4,true);
                     if(ArmPos != 3) {
                         gHMap.armHandler(ArmPos, 3);
                         ArmPos = 3;
@@ -546,7 +554,7 @@ public class BlackWell extends OpMode {
                     /* Score Sample */
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are parked */
-                    follower.followPath(score4,true);
+
                     setPathState(32);
                 }
                 break;
