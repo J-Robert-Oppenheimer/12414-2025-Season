@@ -40,6 +40,7 @@ public class GetJinxed extends OpMode {
     private double LowJointPos;
     private double HighJointPos;
     public int ArmPos = 1;
+    public double hue;
 
 
     /* Create and Define Poses + Paths
@@ -59,16 +60,16 @@ public class GetJinxed extends OpMode {
 //    private final Pose scorePose = new Pose(15, 129, Math.toRadians(315));
 
     /** Lowest (First) Sample from the Spike Mark */
-    private final Pose pickup1Pose = new Pose(22, 124, Math.toRadians(0));
+    private final Pose pickup1Pose = new Pose(23, 124.75, Math.toRadians(0));
 
     /** Middle (Second) Sample from the Spike Mark */
-    private final Pose pickup2Pose = new Pose(22, 133.75, Math.toRadians(0));
+    private final Pose pickup2Pose = new Pose(22, 133.25, Math.toRadians(0));
 
     /** Highest (Third) Sample from the Spike Mark */
-    private final Pose pickup3Pose = new Pose(27, 125, Math.toRadians(50));
-    private final Pose pickup4Pose = new Pose(62, 94, Math.toRadians(270));
-    private final Pose pickup4Pose2 = new Pose(64, 94, Math.toRadians(270));
-    private final Pose pickup4Pose3 = new Pose(66, 94, Math.toRadians(270));
+    private final Pose pickup3Pose = new Pose(32, 129, Math.toRadians(50));
+    private final Pose pickup4Pose = new Pose(62, 99.6, Math.toRadians(90));
+    private final Pose pickup4Pose2 = new Pose(67, 100.5, Math.toRadians(270));
+    private final Pose pickup4Pose3 = new Pose(74, 100.5, Math.toRadians(270));
 
     /** Park Pose for our robot, after we do all of the scoring. */
 //    private final Pose parkPose = new Pose(8, 112, Math.toRadians(270));
@@ -76,11 +77,13 @@ public class GetJinxed extends OpMode {
 
     /** Park Control Pose for our robot, this is used to manipulate the bezier curve that we will create for the parking.
      * The Robot will not go to this pose, it is used a control point for our bezier curve. */
-    private final Pose parkControlPose = new Pose(85, 98, Math.toRadians(90));
+    private final Pose parkControlPose = new Pose(60, 120, Math.toRadians(90));
 
     /* These are our Paths and PathChains that we will define in buildPaths() */
-    private Path scorePreload, park, grabPickup4, scorePickup4;
-    private PathChain grabPickup1, grabPickup2, grabPickup3, scorePickup1, scorePickup2, scorePickup3, grabPickup42;
+    private Path scorePreload;
+    private Path park, grabPickup42;
+    private PathChain scorePickup4;
+    private PathChain grabPickup1, grabPickup2, grabPickup3, scorePickup1, scorePickup2, scorePickup3,  grabPickup4;
 
     /** Build the paths for the auto (adds, for example, constant/linear headings while doing paths)
      * It is necessary to do this so that all the paths are built before the auto starts. **/
@@ -148,24 +151,36 @@ public class GetJinxed extends OpMode {
                 .addPath(new BezierLine(new Point(pickup3Pose), new Point(scorePose)))
                 .setLinearHeadingInterpolation(pickup3Pose.getHeading(), scorePose.getHeading())
                 .build();
-        grabPickup4 = new Path(new BezierCurve(new Point(scorePose), /* Control Point */ new Point(parkControlPose), new Point(pickup4Pose)));
-        grabPickup4.setLinearHeadingInterpolation(scorePose.getHeading(), pickup4Pose.getHeading());
-
-        grabPickup42 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(pickup4Pose), new Point(pickup4Pose2)))
-                .setLinearHeadingInterpolation(pickup4Pose.getHeading(), pickup4Pose2.getHeading())
-                .addPath(new BezierLine(new Point(pickup4Pose2), new Point(pickup4Pose3)))
-                .setLinearHeadingInterpolation(pickup4Pose2.getHeading(), pickup4Pose3.getHeading())
+        grabPickup4 = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(scorePose), new Point(parkControlPose)))
+                .setLinearHeadingInterpolation(scorePose.getHeading(), parkControlPose.getHeading())
+                .addPath(new BezierLine(new Point(parkControlPose), new Point(pickup4Pose)))
+                .setLinearHeadingInterpolation(parkControlPose.getHeading(), pickup4Pose.getHeading())
                 .build();
-        scorePickup4 = new Path(new BezierCurve(new Point(pickup4Pose3), /* Control Point */ new Point(parkControlPose), new Point(scorePose)));
-        scorePickup4.setLinearHeadingInterpolation(pickup4Pose3.getHeading(), scorePose.getHeading());
+
+//        grabPickup42 = follower.pathBuilder()
+//                .addPath(new BezierLine(new Point(pickup4Pose), new Point(pickup4Pose2)))
+//                .setLinearHeadingInterpolation(pickup4Pose.getHeading(), pickup4Pose2.getHeading())
+////                .addPath(new BezierLine(new Point(pickup4Pose2), new Point(pickup4Pose3)))
+////                .setLinearHeadingInterpolation(pickup4Pose2.getHeading(), pickup4Pose3.getHeading())
+//                .build();
+        grabPickup42 = new Path(new BezierLine(new Point(pickup4Pose), new Point(pickup4Pose2)));
+        grabPickup42.setLinearHeadingInterpolation(pickup4Pose.getHeading(), pickup4Pose2.getHeading());
+        scorePickup4 = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(pickup4Pose2), new Point(parkControlPose)))
+                .setLinearHeadingInterpolation(pickup4Pose2.getHeading(), parkControlPose.getHeading())
+                .addPath(new BezierLine(new Point(parkControlPose), new Point(scorePose)))
+                .setLinearHeadingInterpolation(parkControlPose.getHeading(), scorePose.getHeading())
+                .build();
+//        scorePickup4 = new Path(new BezierCurve(new Point(pickup4Pose3), /* Control Point */ new Point(parkControlPose), new Point(scorePose)));
+//        scorePickup4.setLinearHeadingInterpolation(pickup4Pose3.getHeading(), scorePose.getHeading());
 //        scorePickup4 = follower.pathBuilder()
 //                .addPath(new BezierLine(new Point(pickup3Pose), new Point(scorePose)))
 //                .setLinearHeadingInterpolation(pickup3Pose.getHeading(), scorePose.getHeading())
 //                .build();
 
         /* This is our park path. We are using a BezierCurve with 3 points, which is a curved line that is curved based off of the control point */
-        park = new Path(new BezierCurve(new Point(scorePose), /* Control Point */ new Point(parkControlPose), new Point(parkPose)));
+        park = new Path(new BezierLine(new Point(scorePose), new Point(parkPose)));
         park.setLinearHeadingInterpolation(scorePose.getHeading(), parkPose.getHeading());
     }
 
@@ -279,7 +294,7 @@ public class GetJinxed extends OpMode {
                         gHMap.WristPos(0);
                         gHMap.HSlidePos(0);
                     }
-                    if (pathTimer.getElapsedTimeSeconds() > 2.8) {
+                    if (pathTimer.getElapsedTimeSeconds() > 3) {
                         gHMap.closeClaw();
                     }
 //                if(pathTimer.getElapsedTimeSeconds() > 3) {gHMap.autoColorBehavior(ArmPos, true,"SLURP", telemetry);}
@@ -354,12 +369,12 @@ public class GetJinxed extends OpMode {
                 if(pathTimer.getElapsedTimeSeconds() > 1.25) {
                     gHMap.openClaw();}
 //                if (pathTimer.getElapsedTimeSeconds() > 1.5){
-////                        gHMap.armHandler(ArmPos, 0);
-//                    gHMap.bone1.setPower(0.5);
-//                    gHMap.bone3.setPower(0.5);
-//                    gHMap.motorPos(0);
-//                }
-                ArmPos = 0;
+//                    gHMap.armHandler(ArmPos, 0);
+////                    gHMap.bone1.setPower(0.5);
+////                    gHMap.bone3.setPower(0.5);
+////                    gHMap.motorPos(0);
+////                }
+//                ArmPos = 0;
                 if (pathTimer.getElapsedTimeSeconds() > 1.7) {
                     setPathState(14);
                 }
@@ -372,8 +387,13 @@ public class GetJinxed extends OpMode {
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are parked */
                     follower.followPath(grabPickup4,true);
-                    setPathState(20);
+                    if (ArmPos != 0){
+                        gHMap.armHandler(ArmPos, 0);
+                        ArmPos = 0;
+                    }
+                    setPathState(16);
                 }
+                if(pathTimer.getElapsedTimeSeconds() > 5){setPathState(16);}
                 break;
             case 20:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
@@ -388,38 +408,47 @@ public class GetJinxed extends OpMode {
 
                 break;
             case 21:
+                hue = gHMap.getHue();
+                if(hue > 210 && hue < 270)gHMap.zero8.setPower(1);
                 if(!follower.isBusy()) {
-                        gHMap.WristPos(0);
-                        gHMap.HSlidePos(0);
-                    if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                    if(hue > 210 && hue < 270)gHMap.zero8.setPower(1);
+                    gHMap.WristPos(0);
+                    gHMap.HSlidePos(0);
+                    if (pathTimer.getElapsedTimeSeconds() > 4) {
                         gHMap.closeClaw();
                     }
 //                if(pathTimer.getElapsedTimeSeconds() > 3) {gHMap.autoColorBehavior(ArmPos, true,"SLURP", telemetry);}
-                    if (pathTimer.getElapsedTimeSeconds() > 1 && ArmPos != 1) {
-                        gHMap.armHandler(ArmPos, 1);
-                        ArmPos = 1;
-                        setPathState(15);
-                    }
+                    if (pathTimer.getElapsedTimeSeconds() > 6) {
+                        setPathState(22);}
+
                 }
                 break;
             case 22:
                 if(!follower.isBusy()) {
                     follower.followPath(scorePickup4,true);
-                    setPathState(23);
+//                    if (ArmPos != 1) {
+                        gHMap.armHandler(ArmPos, 1);
+                        ArmPos = 1;
+                        setPathState(23);
+//                    }
+
                 }
                 break;
             case 23:
-                if(pathTimer.getElapsedTimeSeconds() > 1.25) {
-                    gHMap.openClaw();}
-                if (pathTimer.getElapsedTimeSeconds() > 1.5){
+                if(!follower.isBusy()) {
+                    if (pathTimer.getElapsedTimeSeconds() > 2.25) {
+                        gHMap.openClaw();
+                    }
+                    if (pathTimer.getElapsedTimeSeconds() > 2.5) {
                         gHMap.armHandler(ArmPos, 0);
-                    gHMap.bone1.setPower(0.5);
-                    gHMap.bone3.setPower(0.5);
-                    gHMap.motorPos(0);
-                }
-                ArmPos = 0;
-                if (pathTimer.getElapsedTimeSeconds() > 1.7) {
-                    setPathState(15);
+                        gHMap.bone1.setPower(0.5);
+                        gHMap.bone3.setPower(0.5);
+                        gHMap.motorPos(0);
+                    }
+                    ArmPos = 0;
+                    if (pathTimer.getElapsedTimeSeconds() > 2.7) {
+                        setPathState(-1);
+                    }
                 }
                 break;
 
@@ -436,6 +465,10 @@ public class GetJinxed extends OpMode {
             case 16:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
                 if(!follower.isBusy()) {
+                    gHMap.jointPos(0.00, 0.05);
+                    gHMap.motorPos(-4);
+
+                    gHMap.zero8.setPower(0);
                     /* Level 1 Ascent */
 
                     /* Set the state to a Case we won't use or define, so it just stops running an new paths */
